@@ -1,15 +1,20 @@
 <?php
 namespace Module\HttpFoundation;
 
+use Module\HttpFoundation\Events\Listener\ListenerDispatch;
+use Module\HttpFoundation\Events\Listener\ListenerFinish;
+use Module\HttpFoundation\Events\Listener\ListenerMatchRequest;
 use Poirot\Application\Interfaces\iApplication;
 use Poirot\Application\Interfaces\Sapi\iSapiModule;
 use Poirot\Application\aSapi;
 use Poirot\Application\Interfaces\Sapi;
 use Poirot\Application\ModuleManager\Interfaces\iModuleManager;
+use Poirot\Application\Sapi\Event\EventHeapOfSapi;
 use Poirot\Application\Sapi\Module\ContainerForFeatureActions;
-use Poirot\Application\Sapi\Server\Http\ListenerDispatch;
 use Poirot\Application\SapiHttp;
 
+use Poirot\Http\Interfaces\Respec\iRequestAware;
+use Poirot\Http\Interfaces\Respec\iResponseAware;
 use Poirot\Ioc\Container;
 use Poirot\Ioc\Container\BuildContainer;
 
@@ -28,12 +33,11 @@ class Module implements iSapiModule
     , Sapi\Module\Feature\iFeatureModuleAutoload
     , Sapi\Module\Feature\iFeatureModuleInitModuleManager
     , Sapi\Module\Feature\iFeatureModuleInitServices
+    , Sapi\Module\Feature\iFeatureModuleInitSapiEvents
     , Sapi\Module\Feature\iFeatureModuleNestActions
     , Sapi\Module\Feature\iFeatureOnPostLoadModulesGrabServices
     , Sapi\Module\Feature\iFeatureModuleMergeConfig
 {
-    protected $sapi;
-
     /**
      * Init Module Against Application
      *
@@ -48,11 +52,9 @@ class Module implements iSapiModule
      */
     function initialize($sapi)
     {
-        if (! $sapi instanceof SapiHttp )
+        if ( \Poirot\isCommandLine( $sapi->getSapiName() ) )
             // Sapi Is Not HTTP. SKIP Module Load!!
             return false;
-
-        $this->sapi = $sapi;
     }
 
     /**
@@ -127,7 +129,67 @@ class Module implements iSapiModule
      */
     function initServiceManager(Container $services)
     {
+        # Initialize service dependencies
+        $services->initializer()->addCallable(function($serviceInstance) use ($services) {
+            if ($serviceInstance instanceof iRequestAware)
+                $serviceInstance->setRequest( $services->get('HttpRequest') );
+
+            if ($serviceInstance instanceof iResponseAware)
+                $serviceInstance->setResponse( $services->get('HttpResponse') );
+
+            if (method_exists($serviceInstance, 'setRouter'))
+                $serviceInstance->setRouter( $services->get('Router') );
+        });
+
         return \Poirot\Config\load(__DIR__ . '/../../config/cor-http_foundation.servicemanager');
+    }
+
+    /**
+     * Attach Listeners To Application Events
+     * @see ApplicationEvents
+     *
+     * priority: Just Before Dispatch Request When All Modules Loaded
+     *           Completely
+     *
+     * @param EventHeapOfSapi $events
+     *
+     * @return void
+     */
+    function initSapiEvents(EventHeapOfSapi $events)
+    {
+        // EVENT: Sapi Route Match .......................................................
+
+        # match request then followed by dispatch
+        $events->on(
+            EventHeapOfSapi::EVENT_APP_MATCH_REQUEST
+            , new ListenerMatchRequest
+            , -10
+        );
+
+
+        // EVENT: Dispatch Matched Route .................................................
+        //        Default CoR Action Dispatcher For Http
+        $events->on(
+            EventHeapOfSapi::EVENT_APP_DISPATCH
+            , new Events\Listener\ListenerAssertRouteMatch
+            , -999
+        );
+
+        # dispatch matched route
+        $events->on(
+            EventHeapOfSapi::EVENT_APP_DISPATCH
+            , new Events\Listener\ListenerDispatch
+            , -1000
+        );
+
+
+        // EVENT: Finish Request To Response .............................................
+
+        $events->on(
+            EventHeapOfSapi::EVENT_APP_FINISH
+            , new ListenerFinish
+            , -1000
+        );
     }
 
     /**
