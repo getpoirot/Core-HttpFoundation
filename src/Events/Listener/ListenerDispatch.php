@@ -112,7 +112,7 @@ class ListenerDispatch
      */
     protected function _resolveActionInvokable(/*callable*/$action, $params)
     {
-        if (!is_callable($action)) {
+        if (! is_callable($action) ) {
             if (is_string($action))
                 $action = $this->_getActionFromServices($action, $params);
             elseif (is_array($action)) {
@@ -148,7 +148,6 @@ class ListenerDispatch
             // ['router', ...]
             $requiredParams[] = $reflectionParam->getName();
 
-        // TODO its better to inject services from construct itself; MAY DEPRECATE; but some times we want also request object!!
         // ['router' => iHRouter] attain service object from name
         $availableArgs = $this->_attainRequestedServicesFromContainer(
             $this->_t__services

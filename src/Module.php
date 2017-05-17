@@ -11,7 +11,6 @@ use Poirot\Application\Interfaces\Sapi;
 use Poirot\Application\ModuleManager\Interfaces\iModuleManager;
 use Poirot\Application\Sapi\Event\EventHeapOfSapi;
 use Poirot\Application\Sapi\Module\ContainerForFeatureActions;
-use Poirot\Application\SapiHttp;
 
 use Poirot\Http\Interfaces\Respec\iRequestAware;
 use Poirot\Http\Interfaces\Respec\iResponseAware;
