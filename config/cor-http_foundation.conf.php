@@ -3,6 +3,14 @@ use Module\HttpFoundation\Router\PreparatorHandleBaseUrl;
 use Module\HttpFoundation\ServiceManager\ServiceRouter;
 
 return [
+    \Module\Foundation\Services\PathService::CONF => [
+        'variables' => [
+            'serverUrl' => function() { return \Module\HttpFoundation\getServerUrl(); },
+            'basePath'  => function() { return \Module\HttpFoundation\getBasePath(); },
+            'baseUrl'   => function() { return \Module\HttpFoundation\getBaseUrl(); },
+        ],
+    ],
+
     ServiceRouter::CONF => [
         // ( ! ) note: Change Config Of Router In Specific Case That You Aware Of It!!
         //             may corrupt routing behaviour
