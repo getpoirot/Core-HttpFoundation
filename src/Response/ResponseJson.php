@@ -1,5 +1,5 @@
 <?php
-namespace Module\HttpRenderer\Response;
+namespace Module\HttpFoundation\Response;
 
 use Poirot\Http\HttpResponse;
 
