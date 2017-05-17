@@ -1,13 +1,18 @@
 <?php
 
+use Poirot\Http\Interfaces\iHttpRequest;
+use Poirot\Http\Interfaces\iHttpResponse;
+use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ResponseInterface;
+
 return [
     'implementations' => [
-        'HttpRequest'  => \Poirot\Http\Interfaces\iHttpRequest::class,
-        'HttpResponse' => \Poirot\Http\Interfaces\iHttpResponse::class,
+        'HttpRequest'  => iHttpRequest::class,
+        'HttpResponse' => iHttpResponse::class,
         'Router'       => \Poirot\Router\Interfaces\iRouterStack::class,
 
-        'HttpRequest-Psr'  => \Psr\Http\Message\RequestInterface::class,
-        'HttpResponse-Psr' => \Psr\Http\Message\ResponseInterface::class,
+        'HttpRequest-Psr'  => RequestInterface::class,
+        'HttpResponse-Psr' => ResponseInterface::class,
     ],
     'services' => [
         \Module\HttpFoundation\ServiceManager\ServiceRequest::class,

@@ -1,7 +1,8 @@
 <?php
+use Module\HttpFoundation\ServiceManager\ServiceRouter;
+
 return [
-    \Module\HttpFoundation\ServiceManager\ServiceRouter::CONF_KEY
-    => [
+    ServiceRouter::CONF => [
         // ( ! ) note: Change Config Of Router In Specific Case That You Aware Of It!!
         //             may corrupt routing behaviour
 

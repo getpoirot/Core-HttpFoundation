@@ -15,7 +15,7 @@ class ServiceRouter
     extends aServiceContainer
 {
     const ROUTE_NAME = 'main';
-    const CONF_KEY   = 'router_stack';
+    const CONF   = 'router_stack';
 
 
     /** @var string Service Name */
@@ -117,7 +117,7 @@ class ServiceRouter
         $config   = $services->get('/sapi');
         $config   = $config->config();
         /** @var DataEntity $config */
-        $config   = $config->get(self::CONF_KEY, array());
+        $config   = $config->get(self::CONF, array());
 
         
         if ($key !== null)
