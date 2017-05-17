@@ -19,8 +19,5 @@
         "psr-4": {
             "Module\\HttpFoundation\\": "src/"
         }
-        , "files": [
-            "src/_ioc-facade.php"
-        ]
     }
 }
