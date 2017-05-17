@@ -40,7 +40,6 @@ use Poirot\Std\InvokableResponder;
  *           ** callable: can get main registered services as argument function($request, $services)
  *                        "request" is registered service
  *
- * @see SapiHttp::_attachToEvents
  */
 class ListenerDispatch
     extends aListener

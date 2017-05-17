@@ -8,10 +8,6 @@ use Poirot\Router\Interfaces\iRouterStack;
 use Poirot\Router\RouterStack;
 
 
-/**
- * @see SapiHttp::_attachToEvents
- */
-
 class ListenerMatchRequest
     extends aListener
 {

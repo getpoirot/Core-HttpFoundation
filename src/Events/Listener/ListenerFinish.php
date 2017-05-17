@@ -9,9 +9,6 @@ use Poirot\View\Interfaces\iViewModel;
 use Psr\Http\Message\StreamInterface;
 
 
-/**
- * @see SapiHttp::_attachToEvents
- */
 class ListenerFinish
     extends aListener
 {
