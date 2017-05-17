@@ -1,4 +1,5 @@
 <?php
+use Module\HttpFoundation\Router\PreparatorHandleBaseUrl;
 use Module\HttpFoundation\ServiceManager\ServiceRouter;
 
 return [
@@ -10,7 +11,7 @@ return [
         // exp. main/home
         'route_name' => 'main',
         'preparator' => new \Poirot\Ioc\instance(
-            \Module\HttpFoundation\Router\PreparatorHandleBaseUrl::class
+            PreparatorHandleBaseUrl::class
         ),
         'params' => [
             // default router params merge with matched route
