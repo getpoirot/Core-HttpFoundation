@@ -9,8 +9,11 @@
     ]
     , "require": {
         "poirot/skeleton": "dev-devel"
-        , "poirot/stream": "dev-devel"
+        , "poirot/router": "dev-devel"
         , "poirot/http": "dev-devel"
+        , "poirot/psr7-http": "dev-devel"
+        , "poirot/stream": "dev-devel"
+        , "poirot/storage": "dev-devel"
     }
     , "autoload"  : {
         "psr-4": {
