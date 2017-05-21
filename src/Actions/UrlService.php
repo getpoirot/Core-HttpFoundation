@@ -20,10 +20,14 @@ class UrlService
     {
         $services = $this->services();
 
+        $routeMatch = ($services->has('/router.match'))
+            ? $services->from('/')->get('router.match')
+            : false;
+
         $rAction = new UrlAction(
             $services->from('/')->get('Router')
             , $services->from('/')->get('HttpRequest-Psr')
-            , ($services->has('/router.match')) ? $services->from('/')->get('router.match') : null
+            , $routeMatch ? $routeMatch : null
         );
 
         return $rAction;

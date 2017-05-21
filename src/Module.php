@@ -1,12 +1,6 @@
 <?php
 namespace Module\HttpFoundation
 {
-
-    use Module\HttpFoundation\Actions\FlashMessageAction;
-    use Module\HttpFoundation\Actions\HtmlHeadTitle;
-    use Module\HttpFoundation\Actions\HtmlLinkAction;
-    use Module\HttpFoundation\Actions\HtmlScriptAction;
-    use Module\HttpFoundation\Actions\UrlAction;
     use Module\HttpFoundation\Events\Listener\ListenerDispatch;
     use Module\HttpFoundation\Events\Listener\ListenerFinish;
     use Module\HttpFoundation\Events\Listener\ListenerMatchRequest;
@@ -265,50 +259,35 @@ namespace Module\HttpFoundation
 
             $buildRoute->build($router);
         }
-
-
-        // ..
-
-        /**
-         * Proxy Call To Actions
-         *
-         * @param $name
-         * @param array $arguments
-         *
-         * @return mixed
-         */
-        static function __callStatic($name, array $arguments)
-        {
-            return call_user_func_array([Actions\IOC::class, $name], $arguments);
-        }
-
-        /**
-         * Retrieve Module Service
-         *
-         * @param string $get
-         *
-         * @return mixed
-         */
-        static function services($get, $options = null)
-        {
-            return call_user_func([Services\IOC::class, $get], $options);
-        }
     }
 }
 
 
-namespace Module\HttpFoundation\Actions
+namespace Module\HttpFoundation
 {
-    class IOC extends \IOC
+    use Module\HttpFoundation\Actions\FlashMessageAction;
+    use Module\HttpFoundation\Actions\HtmlHeadTitle;
+    use Module\HttpFoundation\Actions\HtmlLinkAction;
+    use Module\HttpFoundation\Actions\HtmlScriptAction;
+    use Module\HttpFoundation\Actions\UrlAction;
+
+    /**
+     *
+     * @method static UrlAction          url($routeName = null, $params = array(), $preserveRequest = false)
+     * @method static FlashMessageAction flashMessage($messageNamespace = 'info')
+     * @method static HtmlScriptAction   htmlScript($section = 'inline')
+     * @method static HtmlLinkAction     htmlLink()
+     * @method static HtmlHeadTitle      htmlHeadTitle($title = null)
+     */
+    class Actions extends \IOC
     { }
 }
 
-
-namespace Module\HttpFoundation\Services
+namespace Module\HttpFoundation
 {
     /**
      * @method static mixed Path()
      */
-    class IOC extends \IOC
+    class Services extends \IOC
     { }
 }

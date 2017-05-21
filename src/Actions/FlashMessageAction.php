@@ -5,8 +5,8 @@ use Poirot\Storage\Gateway\DataStorageSession;
 
 /*
 // Usage in view
-if (\Module\HttpFoundation\Module::flashMessage(RegisterPage::FLASH_MESSAGE_ID)->hasMessages())
-    echo \Module\Foundation\Module::view( 'partial/flashMessage', \Module\HttpFoundation\Module::flashMessage(RegisterPage::FLASH_MESSAGE_ID)->fetchMessages() );
+if (\Module\HttpFoundation\Actions::flashMessage(RegisterPage::FLASH_MESSAGE_ID)->hasMessages())
+    echo \Module\Foundation\Actions::view( 'partial/flashMessage', \Module\HttpFoundation\Actions::flashMessage(RegisterPage::FLASH_MESSAGE_ID)->fetchMessages() );
 
 
 // -----------------------------
