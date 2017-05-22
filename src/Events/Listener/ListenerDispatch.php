@@ -161,8 +161,8 @@ class ListenerDispatch
             $matchedArguments = \Poirot\Std\Invokable\resolveArgsForReflection($reflection, $availableArgs);
         } catch (\Exception $e ) {
             throw new \RuntimeException(sprintf(
-                'The Arguments (%s) cant resolved neither with params or available arguments for action reflection.'
-                , implode(', ', $reflectParams)
+                'The Arguments (%s) cant resolved neither with params or available arguments for action (%s).'
+                , implode(', ', $reflectParams), get_class($action)
             ));
         }
 
