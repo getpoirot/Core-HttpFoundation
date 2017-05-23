@@ -3,6 +3,7 @@ namespace Module\HttpFoundation\Actions;
 
 // TODO Script/Link Both Extend Something Like ObjectCollection, Reduce Code Clone
 // TODO To String Items When Its needed; indeed we can store just arrays of attached script
+// TODO Offset of attached scripts
 
 class HtmlScriptAction 
 {
