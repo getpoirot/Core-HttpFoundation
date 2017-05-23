@@ -26,7 +26,8 @@ class ListenerFinish
             $response->setBody( $result );
         } elseif ($result instanceof iViewModel) {
             $response = $sapi->services()->get('HttpResponse');
-            $response->setBody( $result->render() );
+            $bodyStr = $result->render();
+            $response->setBody( $bodyStr );
         } elseif (\Poirot\Std\isStringify($result)) {
             $response = $sapi->services()->get('HttpResponse');
             $response->setBody( (string) $result );
