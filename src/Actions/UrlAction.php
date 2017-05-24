@@ -8,6 +8,7 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 
 // TODO Ability to generate Absolute URL(server prefixed); http://server/path/to/res
+// TODO pass query params merge with url
 
 class UrlAction 
 {
@@ -98,6 +99,14 @@ class UrlAction
                 ));
         }
 
+        $path   = implode('/', array_map(
+            function ($p) { return rawurlencode($p); }
+            , explode('/', $uri->getPath())
+        ));
+
+
+        $uri = $uri->withPath($path);
+        $uri = $uri->withQuery(urlencode($uri->getQuery()));
         return $uri;
     }
 
