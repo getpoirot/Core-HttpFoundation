@@ -3,7 +3,7 @@ namespace Module\HttpFoundation\Actions;
 
 // TODO Script/Link Both Extend Something Like ObjectCollection, Reduce Code Clone
 
-class HtmlLinkAction 
+class HtmlLink
 {
     /**
      * the link is inserted in the head section.

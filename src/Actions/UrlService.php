@@ -24,7 +24,7 @@ class UrlService
             ? $services->from('/')->get('router.match')
             : false;
 
-        $rAction = new UrlAction(
+        $rAction = new Url(
             $services->from('/')->get('Router')
             , $services->from('/')->get('HttpRequest-Psr')
             , $routeMatch ? $routeMatch : null

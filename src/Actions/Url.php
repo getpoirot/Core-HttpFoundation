@@ -10,7 +10,7 @@ use Psr\Http\Message\UriInterface;
 // TODO Ability to generate Absolute URL(server prefixed); http://server/path/to/res
 // TODO pass query params merge with url
 
-class UrlAction 
+class Url
 {
     /** @var RouterStack */
     protected $router;

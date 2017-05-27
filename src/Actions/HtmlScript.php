@@ -5,7 +5,7 @@ namespace Module\HttpFoundation\Actions;
 // TODO To String Items When Its needed; indeed we can store just arrays of attached script
 // TODO Offset of attached scripts
 
-class HtmlScriptAction 
+class HtmlScript
 {
     /** @var string Current Script Section */
     protected $_currSection;

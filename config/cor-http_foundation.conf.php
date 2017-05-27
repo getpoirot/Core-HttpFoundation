@@ -4,6 +4,10 @@ use Module\HttpFoundation\ServiceManager\ServiceRouter;
 
 return [
     \Module\Foundation\Services\PathService::CONF => [
+        'paths' => [
+            // According to route name 'www-assets' to serve statics files
+            'www-assets' => "\$baseUrl/assets/",
+        ],
         'variables' => [
             'serverUrl' => function() { return \Module\HttpFoundation\getServerUrl(); },
             'basePath'  => function() { return \Module\HttpFoundation\getBasePath(); },

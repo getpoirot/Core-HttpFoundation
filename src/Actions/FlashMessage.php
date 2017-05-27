@@ -25,7 +25,7 @@ foreach ($messages as $type => $tMess) {
 }
 */
 
-class FlashMessageAction
+class FlashMessage
 {
     // Message types and shortcuts
     const INFO    = 'info';

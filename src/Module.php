@@ -29,10 +29,10 @@ namespace Module\HttpFoundation
 
     /**
      *
-     * @method static UrlAction          url($routeName = null, $params = array(), $preserveRequest = false)
-     * @method static FlashMessageAction flashMessage($messageNamespace = 'info')
-     * @method static HtmlScriptAction   htmlScript($section = 'inline')
-     * @method static HtmlLinkAction     htmlLink()
+     * @method static Url          url($routeName = null, $params = array(), $preserveRequest = false)
+     * @method static FlashMessage flashMessage($messageNamespace = 'info')
+     * @method static HtmlScript   htmlScript($section = 'inline')
+     * @method static HtmlLink     htmlLink()
      * @method static HtmlHeadTitle      htmlHeadTitle($title = null)
      */
     class Module implements iSapiModule
@@ -242,20 +242,9 @@ namespace Module\HttpFoundation
          */
         protected function _setupHttpRouter(iRouterStack $router)
         {
+            $routes = include __DIR__ . '/../config/cor-http_foundation-routes.conf.php';
             $buildRoute = new BuildRouterStack();
-            $buildRoute->setRoutes([
-                'home'  => [
-                    'route'    => 'RouteSegment',
-                    ## 'allow_override' => true, ## default is true
-                    'options' => [
-                        'criteria'    => '/',
-                        'match_whole' => true,
-                    ],
-                    'params'  => [
-                        ListenerDispatch::ACTIONS => function() { return []; },
-                    ],
-                ],
-            ]);
+            $buildRoute->setRoutes($routes);
 
             $buildRoute->build($router);
         }
@@ -265,19 +254,19 @@ namespace Module\HttpFoundation
 
 namespace Module\HttpFoundation
 {
-    use Module\HttpFoundation\Actions\FlashMessageAction;
+    use Module\HttpFoundation\Actions\FlashMessage;
     use Module\HttpFoundation\Actions\HtmlHeadTitle;
-    use Module\HttpFoundation\Actions\HtmlLinkAction;
-    use Module\HttpFoundation\Actions\HtmlScriptAction;
-    use Module\HttpFoundation\Actions\UrlAction;
+    use Module\HttpFoundation\Actions\HtmlLink;
+    use Module\HttpFoundation\Actions\HtmlScript;
+    use Module\HttpFoundation\Actions\Url;
 
     /**
      *
-     * @method static UrlAction          url($routeName = null, $params = array(), $preserveRequest = false)
-     * @method static FlashMessageAction flashMessage($messageNamespace = 'info')
-     * @method static HtmlScriptAction   htmlScript($section = 'inline')
-     * @method static HtmlLinkAction     htmlLink()
-     * @method static HtmlHeadTitle      htmlHeadTitle($title = null)
+     * @method static Url           url($routeName = null, $params = array(), $preserveRequest = false)
+     * @method static FlashMessage  flashMessage($messageNamespace = 'info')
+     * @method static HtmlScript    htmlScript($section = 'inline')
+     * @method static HtmlLink      htmlLink()
+     * @method static HtmlHeadTitle htmlHeadTitle($title = null)
      */
     class Actions extends \IOC
     { }
