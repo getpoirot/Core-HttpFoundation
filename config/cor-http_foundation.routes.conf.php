@@ -18,7 +18,7 @@ return [
         'route' => 'RouteMethodSegment',
         'options' => [
             'method'   => 'GET',
-            'criteria' => '/assets/:file~.+~',
+            'criteria' => '/p/assets/:file~.+~',
             'match_whole' => false,
         ],
         'params' => [

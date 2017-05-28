@@ -106,7 +106,7 @@ class Url
 
 
         $uri = $uri->withPath($path);
-        $uri = $uri->withQuery(urlencode($uri->getQuery()));
+        // $uri = $uri->withQuery(urlencode($uri->getQuery()));
         return $uri;
     }
 

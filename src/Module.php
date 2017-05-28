@@ -28,12 +28,12 @@ namespace Module\HttpFoundation
 
 
     /**
+     * - with defined route name "www-assets" as fileServe all static file
+     *   from within PT_DIR_ROOT are accessible.
      *
-     * @method static Url          url($routeName = null, $params = array(), $preserveRequest = false)
-     * @method static FlashMessage flashMessage($messageNamespace = 'info')
-     * @method static HtmlScript   htmlScript($section = 'inline')
-     * @method static HtmlLink     htmlLink()
-     * @method static HtmlHeadTitle      htmlHeadTitle($title = null)
+     *   also define a static path "www-assets" point to this url.
+     *
+     *
      */
     class Module implements iSapiModule
         , Sapi\Module\Feature\iFeatureModuleInitSapi
@@ -242,7 +242,7 @@ namespace Module\HttpFoundation
          */
         protected function _setupHttpRouter(iRouterStack $router)
         {
-            $routes = include __DIR__ . '/../config/cor-http_foundation-routes.conf.php';
+            $routes = include __DIR__ . '/../config/cor-http_foundation.routes.conf.php';
             $buildRoute = new BuildRouterStack();
             $buildRoute->setRoutes($routes);
 

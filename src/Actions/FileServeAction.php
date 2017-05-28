@@ -1,13 +1,13 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
-
 use Module\HttpFoundation\Events\Listener\ListenerDispatch;
 use Poirot\Http\HttpMessage\Response\BuildHttpResponse;
 use Poirot\Http\HttpResponse;
 use Poirot\Stream\ResourceStream;
 use Poirot\Stream\Streamable;
 
+// TODO in memory cache
 class FileServeAction
 {
     /**
@@ -48,7 +48,8 @@ class FileServeAction
 
         $headers = [];
         $headers['Content-Length'] = $body->getSize();
-        $headers['Content-Type']   = mime_content_type($filePath);
+        $headers['Content-Transfer-Encoding'] = 'binary';
+        $headers['Content-Type']   = \Module\HttpFoundation\getMimeTypeOfFile($filePath);
 
         return $this->_makeResponse(200, $body, $headers);
     }

@@ -6,7 +6,8 @@ return [
     \Module\Foundation\Services\PathService::CONF => [
         'paths' => [
             // According to route name 'www-assets' to serve statics files
-            'www-assets' => "\$baseUrl/assets/",
+            // @see cor-http_foundation.routes
+            'www-assets' => "\$baseUrl/p/assets/",
         ],
         'variables' => [
             'serverUrl' => function() { return \Module\HttpFoundation\getServerUrl(); },
