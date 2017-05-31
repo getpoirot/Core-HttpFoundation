@@ -1,9 +1,9 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
-// TODO Script/Link Both Extend Something Like ObjectCollection, Reduce Code Clone
+use Poirot\Std\Struct\CollectionPriority;
+
 // TODO To String Items When Its needed; indeed we can store just arrays of attached script
-// TODO Offset of attached scripts
 
 class HtmlScript
 {
@@ -59,56 +59,59 @@ class HtmlScript
     /**
      * Attach Script File
      *
-     * @param string    $src    Http Url To File
-     * @param array|int $attrs  Attributes Or Priority Offset
-     * @param string    $type   Text/Javascript
-     * @param int|null  $offset Script Priority Offset
+     * $attributtes:
+     * [
+     *   'type' => 'text/javascript',
+     *
+     * ]
+     *
+     * @param string    $src         Http Url To File
+     * @param array|int $attributes  Attributes
+     * @param int|null  $priority    Script Priority Offset
+     * @param string    $type        Text/Javascript
      *
      * @return $this
      */
-    function attachFile($src, $attrs = array(), $type = 'text/javascript', $offset = null)
+    function attachFile($src, $priority = null, array $attributes = [], $type = 'text/javascript')
     {
-        if (is_int($attrs))
-            $offset = $attrs;
-
-        if (isset($attrs['type'])) {
-            $type = $attrs['type'];
-            unset($attrs['type']);
+        if (isset($attributes['type'])) {
+            $type = $attributes['type'];
+            unset($attributes['type']);
         }
 
         $item = array(
             "type"       => $type,
-            "attributes" => array_merge(array("src" => (string) $src), $attrs)
+            "attributes" => array_merge( $attributes, array("src" => (string) $src) )
         );
 
-        $this->_insertScriptStr($this->_itemToString($item), $offset);
+        $this->_insertScriptStr($this->_itemToString($item), $priority);
         return $this;
     }
 
     /**
      * Attach Script Content
      *
-     * @param string    $script Script Content
-     * @param array|int $attrs  Attributes Or Priority Offset
-     * @param string    $type   Text/Javascript
-     * @param int|null  $offset Script Priority Offset
+     * @param string    $script     Script Content
+     * @param array|int $attributes Attributes Or Priority Offset
+     * @param int|null  $priority   Script Priority Offset
+     * @param string    $type       Text/Javascript
      *
      * @return $this
      */
-    function attachScript($script, $attrs = array(), $type = 'text/javascript', $offset = null)
+    function attachScript($script, $priority = null, array $attributes = [], $type = 'text/javascript')
     {
-        if (isset($attrs['type'])) {
-            $type = $attrs['type'];
-            unset($attrs['type']);
+        if (isset($attributes['type'])) {
+            $type = $attributes['type'];
+            unset($attributes['type']);
         }
 
         $item = array(
             "source"     => (string) $script,
             "type"       => $type,
-            "attributes" => $attrs
+            "attributes" => $attributes
         );
 
-        $this->_insertScriptStr($this->_itemToString($item), $offset);
+        $this->_insertScriptStr($this->_itemToString($item), $priority);
         return $this;
     }
 
@@ -123,7 +126,12 @@ class HtmlScript
             ? $this->scripts[$this->_currSection]
             : array();
 
-        return implode("\r\n", $scripts);
+        $array = [];
+        foreach (clone $scripts as $element)
+            $array[] = $element;
+
+
+        return implode("\r\n", $array);
     }
 
     /**
@@ -139,7 +147,7 @@ class HtmlScript
     {
         $duplicate = false;
         foreach($this->scripts as $section) {
-            foreach ($section as $item) {
+            foreach (clone $section as $item) {
                 $duplicate |= $item === $scrStr;
 
                 if ($duplicate)
@@ -161,33 +169,35 @@ class HtmlScript
      */
     protected function _insertScriptStr($scrStr, $offset = null)
     {
-        if ($this->hasAttached($scrStr))
+        if ( $this->hasAttached($scrStr) )
             return;
 
-        if (!array_key_exists($this->_currSection, $this->scripts))
-            $this->scripts[$this->_currSection] = array();
 
-        $this->_insertIntoPosArray($this->scripts[$this->_currSection], $scrStr, $offset);
+        $currSection = $this->_currSection;
+
+        if (! array_key_exists($currSection, $this->scripts) )
+            $this->scripts[$currSection] = new CollectionPriority;
+
+        $this->_insertIntoPos($this->scripts[$currSection], $scrStr, $offset);
     }
 
-    protected function _insertIntoPosArray(&$array, $element, $offset)
+    /**
+     * @param CollectionPriority $queue
+     * @param $element
+     * @param $offset
+     * @throws \Exception
+     */
+    protected function _insertIntoPos($queue, $element, $offset)
     {
         if ($offset === null)
             // Append element to scripts at the end.
-            return $array[] = $element;
+            $offset = 0;
 
-        if (!is_int($offset))
+        if (! is_int($offset) || $offset < 0)
             throw new \Exception(sprintf('Invalid Offset Given (%s).', \Poirot\Std\flatten($offset)));
 
-        // [1, 2, x, 4, 5, 6] ---> before [1, 2], after [4, 5, 6]
-        $beforeOffsetPart = array_slice($array, 0, $offset);
-        $afterOffsetPart  = array_slice($array, $offset);
-        # insert element in offset
-        $beforeOffsetPart = $beforeOffsetPart + array($offset => $element);
 
-        # glue them back
-        $array = array_merge($beforeOffsetPart , $afterOffsetPart);
-        arsort($array);
+        $queue->insert($element, $offset);
     }
 
     /**
@@ -205,7 +215,7 @@ class HtmlScript
         $item = (object) $item;
 
         $attrString = '';
-        if (!empty($item->attributes)) {
+        if (! empty($item->attributes) ) {
             foreach ($item->attributes as $key => $value) {
                 if ((!$this->_isArbitraryAttributesAllowed() && !in_array($key, $this->optionalAttributes))
                     || in_array($key, array('conditional', 'noescape'))
@@ -225,7 +235,7 @@ class HtmlScript
         $type = ($this->autoEscape) ? addslashes($item->type) : $item->type;
         $html = '<script type="' . $type . '"' . $attrString . '>';
 
-        if (!empty($item->source)) {
+        if (! empty($item->source) ) {
             $html .= PHP_EOL;
 
             if ($addScriptEscape)
