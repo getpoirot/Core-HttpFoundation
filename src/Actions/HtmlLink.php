@@ -1,18 +1,14 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
-// TODO Script/Link Both Extend Something Like ObjectCollection, Reduce Code Clone
 
 class HtmlLink
 {
-    /**
-     * the link is inserted in the head section.
-     */
+    /** the link is inserted in the head section. */
     protected $links = array();
 
     /**
      * Allowed attributes
-     *
      * @var string[]
      */
     protected $itemKeys = array(
@@ -38,6 +34,7 @@ class HtmlLink
      */
     protected $autoEscape = true;
 
+
     /**
      * Invoke HtmlLink
      *
@@ -51,31 +48,30 @@ class HtmlLink
     /**
      * Attach Script File
      *
-     * @param string    $href   Http Url To File
-     * @param array|int $attrs  Attributes Or Priority Offset
-     * @param string    $rel    stylesheet
-     * @param int|null  $offset Script Priority Offset
+     * @param string    $href       Http Url To File
+     * @param int|null  $offset     Script Priority Offset
+     * @param array|int $attributes Attributes Or Priority Offset
+     * @param string    $rel        stylesheet
      *
      * @return $this
      */
-    function attachFile($href, $attrs = array(), $rel = 'stylesheet', $offset = null)
+    function attachFile($href, $offset = null, array $attributes = array(), $rel = 'stylesheet')
     {
-        if (is_int($attrs))
-            $offset = $attrs;
+        if (is_int($attributes))
+            $offset = $attributes;
 
-        if (isset($attrs['type'])) {
-            $rel = $attrs['type'];
-            unset($attrs['type']);
+        if (isset($attributes['type'])) {
+            $rel = $attributes['type'];
+            unset($attributes['type']);
         }
 
         $item = array(
             'rel'  => $rel,
             'href' => $href,
         );
-        $item = array_merge($item, $attrs);
+        $item = array_merge($item, $attributes);
 
         $this->_insertScriptStr($this->_itemToString($item), $offset);
-
         return $this;
     }
 
@@ -99,6 +95,9 @@ class HtmlLink
 
         return false;
     }
+
+
+    // ..
 
     /**
      * Render Attached Links
