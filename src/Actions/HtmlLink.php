@@ -57,9 +57,6 @@ class HtmlLink
      */
     function attachFile($href, $offset = null, array $attributes = array(), $rel = 'stylesheet')
     {
-        if (is_int($attributes))
-            $offset = $attributes;
-
         if (isset($attributes['type'])) {
             $rel = $attributes['type'];
             unset($attributes['type']);
@@ -67,11 +64,11 @@ class HtmlLink
 
         $item = array(
             'rel'  => $rel,
-            'href' => $href,
-        );
-        $item = array_merge($item, $attributes);
+            'href' => $href, );
 
-        $this->_insertScriptStr($this->_itemToString($item), $offset);
+        $item = array_merge($attributes, $item);
+
+        $this->_insertLinkStr( $this->_itemToString($item), $offset );
         return $this;
     }
 
@@ -106,7 +103,7 @@ class HtmlLink
      */
     function __toString()
     {
-        return implode('\r\n', $this->links);
+        return implode( PHP_EOL, $this->links );
     }
 
     /**
@@ -115,10 +112,13 @@ class HtmlLink
      * @param string  $scrStr
      * @param int     $offset
      */
-    protected function _insertScriptStr($scrStr, $offset = null)
+    protected function _insertLinkStr($scrStr, $offset = null)
     {
         if ($this->hasAttached($scrStr))
             return;
+
+
+        ($offset !== null) ?: $offset = 0;
 
         $this->_insertIntoPosArray($this->links, $scrStr, $offset);
     }
@@ -146,6 +146,7 @@ class HtmlLink
     {
         $attributes = $item;
         $link       = '<link';
+        // TODO use something better than foreach for each options
         foreach ($this->itemKeys as $itemKey) {
             if (isset($attributes[$itemKey])) {
                 if (is_array($attributes[$itemKey])) {
@@ -162,7 +163,7 @@ class HtmlLink
             }
         }
 
-        $link .= ' />' . PHP_EOL;
+        $link .= ' />';
 
         if (($link == '<link />') || ($link == '<link>')) {
             return '';
