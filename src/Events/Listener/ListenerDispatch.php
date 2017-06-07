@@ -82,6 +82,10 @@ class ListenerDispatch
         $action  = $params[self::ACTIONS];
         unset( $params[self::ACTIONS] ); // other route params as argument for actions
 
+
+        if ( is_array($action) ) // because if root params option not an array it will not merged but replaced
+            $action = array_reverse($action); // because route merge params do in desc order
+
         $invokable = $this->_resolveActionInvokable($action, $params);
 
         $result = call_user_func($invokable);
