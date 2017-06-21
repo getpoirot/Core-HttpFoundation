@@ -197,8 +197,13 @@ class ListenerDispatch
                 if ($name !== $k)
                     continue;
 
-                $typeHint = $rp->getType();
-                $args[$name] = $typeHint.' '.$args[$name];
+                $typeHint = null;
+                if (method_exists($rp, 'getType')) {
+                    // PHP7
+                    $typeHint = $rp->getType();
+                    $args[$name] = $typeHint.' '.$args[$name];
+                }
+
                 unset($reflectParams[$i]);
             }
 
