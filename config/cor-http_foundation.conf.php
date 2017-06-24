@@ -23,6 +23,7 @@ return [
         // router stack name; this name will prefixed to route names
         // exp. main/home
         'route_name' => 'main',
+        // Instance will instantiated while Merge Config Loaded !!
         'preparator' => new \Poirot\Ioc\instance(
             PreparatorHandleBaseUrl::class
         ),
