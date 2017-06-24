@@ -262,7 +262,7 @@ namespace Module\HttpFoundation
 
     /**
      *
-     * @method static Url           url($routeName = null, $params = array(), $preserveRequest = false)
+     * @method static Url           url($routeName = null, $params = array(), $instruct = Url::DEFAULT_INSTRUCT, array $instructOptions = array())
      * @method static FlashMessage  flashMessage($messageNamespace = 'info')
      * @method static HtmlScript    htmlScript($section = 'inline')
      * @method static HtmlLink      htmlLink()

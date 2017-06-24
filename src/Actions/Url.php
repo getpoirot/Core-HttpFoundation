@@ -7,11 +7,32 @@ use Poirot\Router\RouterStack;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\UriInterface;
 
-// TODO Ability to generate Absolute URL(server prefixed); http://server/path/to/res
-// TODO pass query params merge with url
+/*
+\Module\HttpFoundation\Actions::url(
+    null
+    , []
+    , Url::DEFAULT_INSTRUCT|Url::APPEND_CURRENT_REQUEST_QUERY|Url::WITH_GIVEN_QUERY_PARAMS
+    , ['query_params' => ['sort' => 'PerPrice']]
+);
 
+\Module\HttpFoundation\Actions::url('main/apanaj.admin/users/manage', ['page' => null])
+// or
+\Module\HttpFoundation\Actions::url('main/apanaj.admin/users/manage', [], Url::DEFAULT_INSTRUCT & ~Url::MERGE_CURRENT_ROUTE_PARAMS)
+*/
+
+// TODO Ability to generate Absolute URL(server prefixed); http://server/path/to/res
+        // it can be route specific, in case that route match with HOST for example
+// TODO Consider base_url; usage in: ServiceAuthenticatorDefault
 class Url
 {
+    const MERGE_CURRENT_ROUTE_PARAMS   =    0b1;
+    const APPEND_CURRENT_REQUEST_QUERY =   0b10;
+    const ENCODE_URL                   =  0b100;
+    const WITH_GIVEN_QUERY_PARAMS      = 0b1000;
+
+    const DEFAULT_INSTRUCT = self::MERGE_CURRENT_ROUTE_PARAMS | self::ENCODE_URL;
+
+
     /** @var RouterStack */
     protected $router;
     /** @var RequestInterface */
@@ -19,7 +40,7 @@ class Url
     /** @var iRoute */
     protected $routeMatch;
 
-    protected $_c__lastInvokedRouter;
+    protected $_c__lastInvokedRouter = [];
 
 
     /**
@@ -43,17 +64,32 @@ class Url
      *   the route object has matched parameters from route injected.
      *
      *
-     * @param null|string  $routeName              If not given use current matched route name
-     * @param array        $params                 Route Assemble Params
-     * @param bool         $preserveCurrentRequest Use current request query params?!!
+     * @param null|string $routeName      If not given use current matched route name
+     * @param array       $params         Route Assemble Params
+     * @param int         $instruct       URL Instruction Constants Binary
+     *                                    MERGE_CURRENT_ROUTE_PARAMS|APPEND_CURRENT_REQUEST_QUERY|ENCODE_URL
+     *                                    | WITH_GIVEN_QUERY_PARAMS
      *
-     * @return mixed
+     * @param array      $instructOptions ['query_params' => '', ..]
+     *
+     * @return $this
      * @throws \Exception
      */
-    function __invoke($routeName = null, $params = array(), $preserveCurrentRequest = false)
+    function __invoke(
+        $routeName = null
+        , $params = array()
+        , $instruct = self::DEFAULT_INSTRUCT
+        , array $instructOptions = array())
     {
         if ($this->router === null )
             throw new \RuntimeException('No RouteStackInterface instance provided');
+
+        if (! is_array($params))
+            throw new \InvalidArgumentException(sprintf(
+                'Params must be array; given: (%s).'
+                , gettype($params)
+            ));
+
 
         if ($routeName === null)
             ## using matched route
@@ -71,7 +107,7 @@ class Url
         // TODO now disabled until routes clone params going well
         // @see aRoute __clone
 
-        $this->_c__lastInvokedRouter = array($router, $params, $preserveCurrentRequest);
+        $this->_c__lastInvokedRouter = array($router, $params, $instruct, $instructOptions);
         return $this;
     }
 
@@ -83,14 +119,28 @@ class Url
     function uri()
     {
         // TODO using internal cache
-        $router = $this->_c__lastInvokedRouter[0];
+
+        list($router, $params, $instruct, $options) = $this->_c__lastInvokedRouter;
+
+
+        # Check For Preserving Current Request Route Params
+        #
+        if (is_array($params) && ($instruct & self::MERGE_CURRENT_ROUTE_PARAMS) == self::MERGE_CURRENT_ROUTE_PARAMS) {
+            $routeMatch = $this->_getMatchedRoute();
+            $currParams = $routeMatch->params();
+            $params = array_merge(iterator_to_array($currParams), $params);
+        }
+
         /** @var iRouterStack $router */
-        if ($params = $this->_c__lastInvokedRouter[1])
+        if ($params)
             $uri = $router->assemble($params);
         else
             $uri = $router->assemble();
 
-        if ($preserve = $this->_c__lastInvokedRouter[2]) {
+
+        # On Preserve Current Request We Also Use Query
+        #
+        if (($instruct & self::APPEND_CURRENT_REQUEST_QUERY) == self::APPEND_CURRENT_REQUEST_QUERY) {
             $request = $this->request;
             $request = $request->getRequestTarget();
             if ($query = parse_url($request, PHP_URL_QUERY))
@@ -99,14 +149,29 @@ class Url
                 ));
         }
 
-        $path   = implode('/', array_map(
-            function ($p) { return rawurlencode($p); }
-            , explode('/', $uri->getPath())
-        ));
+        # Merge With Given Query Params
+        #
+        if (($instruct & self::WITH_GIVEN_QUERY_PARAMS) == self::WITH_GIVEN_QUERY_PARAMS) {
+            if (isset($options['query_params'])) {
+                $uri = \Poirot\Psr7\modifyUri($uri, array(
+                    'query' => $options['query_params']
+                ));
+            }
+        }
+
+        # Url Encode Path
+        #
+        if ($instruct & self::ENCODE_URL == self::ENCODE_URL) {
+            $path   = implode('/', array_map(
+                function ($p) { return rawurlencode($p); }
+                , explode('/', $uri->getPath())
+            ));
+
+            $uri = $uri->withPath($path);
+            // $uri = $uri->withQuery(urlencode($uri->getQuery()));
+        }
 
 
-        $uri = $uri->withPath($path);
-        // $uri = $uri->withQuery(urlencode($uri->getQuery()));
         return $uri;
     }
 
