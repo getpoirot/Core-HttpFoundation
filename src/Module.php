@@ -28,12 +28,46 @@ namespace Module\HttpFoundation
 
 
     /**
-     * - with defined route name "www-assets" as fileServe all static file
+     * - Base Services:
+     *   > current request
+     *     HttpRequest, HttpRequest-Psr,
+     *   > response
+     *     HttpResponse, HttpResponse-Psr,
+     *
+     *   Router.
+     *
+     *     ! to get latest message psr always instance as fresh from container
+     *
+     *   add container initializer(s) for http message aware and router aware.
+     *
+     * - Dispatch Request Matching Within Defined Routes.
+     * - Flush Response To Client.
+     *
+     * - Actions Helpers:
+     *   Url reverse lookup and assemble of router to make url.
+     *   FlashMessage provide message flash with ability to pass object(s) as message.
+     *   FileServer flush and serve file requested.
+     *   HtmlHeadTitle
+     *   HtmlScript
+     *   HtmlLink
+     *
+     * - Provide variables for cor-foundation Path service.
+     *   serverUrl, basePath, baseUrl
+     *
+     *   @see cor-http_foundation.conf.php
+     *
+     *
+     * - Provide functions such as mime-type detection, etc...
+     *
+     *   @see _functions.php
+     *
+     *
+     * - With defined route name "www-assets" as fileServe all static file
      *   from within PT_DIR_ROOT are accessible.
      *
      *   also define a static path "www-assets" point to this url.
      *
-     *
+     *   @see cor-http_foundation.routes.conf.php
      */
     class Module implements iSapiModule
         , Sapi\Module\Feature\iFeatureModuleInitSapi

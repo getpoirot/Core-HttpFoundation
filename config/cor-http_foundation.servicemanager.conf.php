@@ -16,11 +16,12 @@ return [
         'HttpResponse-Psr' => ResponseInterface::class,
     ],
     'services' => [
-        \Module\HttpFoundation\ServiceManager\ServiceRequest::class,
-        \Module\HttpFoundation\ServiceManager\ServiceResponse::class,
-        \Module\HttpFoundation\ServiceManager\ServiceRouter::class,
+        'HttpRequest'     => \Module\HttpFoundation\ServiceManager\ServiceRequest::class,
+        'HttpRequest-Psr' => \Module\HttpFoundation\ServiceManager\ServiceRequestPsr::class,
 
-        \Module\HttpFoundation\ServiceManager\ServiceRequestPsr::class,
-        \Module\HttpFoundation\ServiceManager\ServiceResponsePsr::class,
+        'HttpResponse'     => \Module\HttpFoundation\ServiceManager\ServiceResponse::class,
+        'HttpResponse-Psr' => \Module\HttpFoundation\ServiceManager\ServiceResponsePsr::class,
+
+        'Router' => \Module\HttpFoundation\ServiceManager\ServiceRouter::class,
     ],
 ];
