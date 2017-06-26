@@ -63,7 +63,7 @@ namespace Module\HttpFoundation
      *
      *
      * - With defined route name "www-assets" as fileServe all static file
-     *   from within PT_DIR_ROOT are accessible.
+     *   from within PT_DIR_ROOT/www are accessible.
      *
      *   also define a static path "www-assets" point to this url.
      *
