@@ -227,17 +227,17 @@ class BuildHttpRequestFromPhpServer
 
             $rawData = $_POST;
 
-            if (isset($_FILES)) {
+            if ( isset($_FILES) ) {
                 # Convert to UploadedFileInterface
                 foreach ($_FILES as $formDataName => $fileSpec)
                     $rawData[$formDataName] = \Poirot\Http\Psr\makeUploadedFileFromSpec($fileSpec);
             }
 
-            $stream  = new StreamBodyMultiPart($rawData, $boundary);
+            $stream = new StreamBodyMultiPart($rawData, $boundary);
         }
         else
         {
-            // TODO it can be implemented with Buffer Stream
+            // TODO it can be implemented with Upstream Stream
             $stream = new Streamable\STemporary;
             $stream->write(file_get_contents('php://input'));
         }
