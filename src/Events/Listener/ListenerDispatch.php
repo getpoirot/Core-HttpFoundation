@@ -265,7 +265,7 @@ class ListenerDispatch
         /** @see ListenerInitNestedContainer */
         $services   = $this->_t__services;
         try {
-            $aResponder = $services->get( $aResponder, array('options' => $params) );
+            $aResponder = $services->get( $aResponder, $params );
         } catch (\Exception $e) {
             throw new \RuntimeException(
                 sprintf('Dispatcher cant resolve to (%s).', $aResponder), 500, $e
