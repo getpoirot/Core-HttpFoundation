@@ -125,8 +125,8 @@ class Url
 
         # Check For Preserving Current Request Route Params
         #
-        if (is_array($params) && ($instruct & self::MERGE_CURRENT_ROUTE_PARAMS) == self::MERGE_CURRENT_ROUTE_PARAMS) {
-            $routeMatch = $this->_getMatchedRoute();
+        $routeMatch = $this->_getMatchedRoute();
+        if ($routeMatch && is_array($params) && ($instruct & self::MERGE_CURRENT_ROUTE_PARAMS) == self::MERGE_CURRENT_ROUTE_PARAMS) {
             $currParams = $routeMatch->params();
             $params = array_merge(iterator_to_array($currParams), $params);
         }
@@ -193,10 +193,14 @@ class Url
     {
         try {
             $return = (string) $this->uri();
+        } catch (\Throwable $e)
+        {
+            $return = $e->getMessage();
         } catch (\Exception $e)
         {
             $return = $e->getMessage();
         }
+
 
         return $return;
     }
