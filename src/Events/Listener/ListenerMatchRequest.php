@@ -31,7 +31,6 @@ class ListenerMatchRequest
         $router   = $services->get('Router');
         $match    = $router->match( $services->fresh('HttpRequest-Psr') );
 
-
         /** @var RouterStack $routeMatch */
         $route_match = new ServiceInstance;
         /** @see UrlService */

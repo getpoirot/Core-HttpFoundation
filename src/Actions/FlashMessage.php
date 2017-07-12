@@ -1,8 +1,6 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
-use Poirot\Storage\Gateway\DataStorageSession;
-
 /*
 // Usage in view
 if (\Module\HttpFoundation\Actions::flashMessage(RegisterPage::FLASH_MESSAGE_ID)->hasMessages())
@@ -24,6 +22,8 @@ foreach ($messages as $type => $tMess) {
     <?php }
 }
 */
+
+use Poirot\Storage\Http\SessionStore;
 
 class FlashMessage
 {
@@ -308,14 +308,13 @@ class FlashMessage
 
     /**
      * Get Session Storage
-     * @return DataStorageSession
+     * @return SessionStore
      */
     function _session()
     {
         if(!$this->_session) {
-            $session = new DataStorageSession;
             // Store in session by realm defined with this authentication domain
-            $session->setRealm(self::SESSION_REALM);
+            $session = new SessionStore(self::SESSION_REALM);
             $this->_session = $session;
         }
 
