@@ -109,11 +109,11 @@ class ListenerDispatch
      *
      * @param callable $action
      * @param array    $params
+     * @param null     $identifer Custom execution identifier result
      *
      * @return callable
-     * @throws \Exception
      */
-    protected function _resolveActionInvokable(/*callable*/$action, $params)
+    protected function _resolveActionInvokable(/*callable*/$action, $params, $identifer = null)
     {
         if (! is_callable($action) ) {
             if (is_string($action))
@@ -121,7 +121,7 @@ class ListenerDispatch
             elseif (is_array($action)) {
                 /**
                  * Array (
-                 *   [0] => /module/oauth2/actions/AssertAuthToken
+                 *   ['/module/oauth2/actions/AssertAuthToken'] => 'token'
                  *   [1] => Array (
                  *      [0] => /module/foundation/actions/ParseRequestData
                  *      [1] => /module/oauth2/actions/Register
@@ -129,9 +129,20 @@ class ListenerDispatch
                  */
                 // Action Chains And Result Collector
                 $invokable = new InvokableResponder(function () use ($params) { return $params; });
-                foreach($action as $act) {
-                    $act = $this->_resolveActionInvokable($act, $params);
-                    $invokable = $invokable->thenWith($act);
+                if ($identifer)
+                    // Set Specific Identifier RESULT When Action executed and returned.
+                    $invokable->setIdentifier($identifer);
+
+                foreach($action as $actIndex => $act) {
+                    if (!is_int($actIndex)) {
+                        // ['/module/oauth2/actions/AssertAuthToken'] => 'token'
+                        $identifer = $act;
+                        $act       = $this->_resolveActionInvokable($actIndex, $params, $identifer);
+                    }
+                    else
+                        $act = $this->_resolveActionInvokable($act, $params);
+
+                    $invokable = $invokable->thenWith($act, null, $identifer);
                 }
 
                 $action = $invokable;
