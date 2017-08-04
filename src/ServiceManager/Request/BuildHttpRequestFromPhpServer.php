@@ -149,6 +149,7 @@ class BuildHttpRequestFromPhpServer
     }
 
     /**
+     * // TODO Authorization Header only can retrieved from apache_request_headers when send Bearer ...
      * Get Headers
      * @see HttpRequest::setHeaders
      * 
