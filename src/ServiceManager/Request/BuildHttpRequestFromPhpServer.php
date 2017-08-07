@@ -27,13 +27,13 @@ class BuildHttpRequestFromPhpServer
      */
     function build(iHttpRequest $request)
     {
-        $request->setProtocol($this->getProtocol());
-        $request->setMethod($this->getMethod());
-        $request->setHost($this->getHost());
-        $request->setVersion($this->getVersion());
-        $request->setTarget($this->getTarget());
-        $request->setHeaders($this->getHeaders());
-        $request->setBody($this->getBody());
+        $request->setProtocol( $this->getProtocol() );
+        $request->setMethod( $this->getMethod() );
+        $request->setHost( $this->getHost() );
+        $request->setVersion( $this->getVersion() );
+        $request->setTarget( $this->getTarget() );
+        $request->setHeaders( $this->getHeaders() );
+        $request->setBody( $this->getBody() );
     }
     
     
@@ -41,10 +41,10 @@ class BuildHttpRequestFromPhpServer
 
     function getProtocol()
     {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) 
-            ? "https" 
-            : "http";
-        
+        ( !empty($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) )
+            ? $protocol = "https"
+            : $protocol = "http";
+
         return $protocol;
     }
 
