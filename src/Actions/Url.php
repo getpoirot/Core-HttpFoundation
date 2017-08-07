@@ -20,15 +20,14 @@ use Psr\Http\Message\UriInterface;
 \Module\HttpFoundation\Actions::url('main/apanaj.admin/users/manage', [], Url::DEFAULT_INSTRUCT & ~Url::MERGE_CURRENT_ROUTE_PARAMS)
 */
 
-// TODO Ability to generate Absolute URL(server prefixed); http://server/path/to/res
-        // it can be route specific, in case that route match with HOST for example
-// TODO Consider base_url; usage in: ServiceAuthenticatorDefault
 class Url
 {
-    const MERGE_CURRENT_ROUTE_PARAMS   =    0b1;
-    const APPEND_CURRENT_REQUEST_QUERY =   0b10;
-    const ENCODE_URL                   =  0b100;
-    const WITH_GIVEN_QUERY_PARAMS      = 0b1000;
+    const INSTRUCT_NOTHING             =      0b1;
+    const MERGE_CURRENT_ROUTE_PARAMS   =     0b10;
+    const APPEND_CURRENT_REQUEST_QUERY =    0b100;
+    const ENCODE_URL                   =   0b1000;
+    const WITH_GIVEN_QUERY_PARAMS      =  0b10000;
+    const ABSOLUTE_URL                 = 0b100000;
 
     const DEFAULT_INSTRUCT = self::MERGE_CURRENT_ROUTE_PARAMS | self::ENCODE_URL;
 
@@ -107,7 +106,7 @@ class Url
         // TODO now disabled until routes clone params going well
         // @see aRoute __clone
 
-        $this->_c__lastInvokedRouter = array($router, $params, $instruct, $instructOptions);
+        $this->_c__lastInvokedRouter = [ $router, $params, $instruct, $instructOptions ];
         return $this;
     }
 
@@ -120,15 +119,17 @@ class Url
     {
         // TODO using internal cache
 
-        list($router, $params, $instruct, $options) = $this->_c__lastInvokedRouter;
+        list( $router, $params, $instruct, $options ) = $this->_c__lastInvokedRouter;
 
 
         # Check For Preserving Current Request Route Params
         #
         $routeMatch = $this->_getMatchedRoute();
-        if ($routeMatch && is_array($params) && ($instruct & self::MERGE_CURRENT_ROUTE_PARAMS) == self::MERGE_CURRENT_ROUTE_PARAMS) {
+        if ( $routeMatch && is_array($params)
+            && ($instruct & self::MERGE_CURRENT_ROUTE_PARAMS) === self::MERGE_CURRENT_ROUTE_PARAMS
+        ) {
             $currParams = $routeMatch->params();
-            $params = array_merge(iterator_to_array($currParams), $params);
+            $params     = array_merge(iterator_to_array($currParams), $params);
         }
 
         /** @var iRouterStack $router */
@@ -140,7 +141,7 @@ class Url
 
         # On Preserve Current Request We Also Use Query
         #
-        if (($instruct & self::APPEND_CURRENT_REQUEST_QUERY) == self::APPEND_CURRENT_REQUEST_QUERY) {
+        if ( ($instruct & self::APPEND_CURRENT_REQUEST_QUERY) === self::APPEND_CURRENT_REQUEST_QUERY ) {
             $request = $this->request;
             $request = $request->getRequestTarget();
             if ($query = parse_url($request, PHP_URL_QUERY))
@@ -149,9 +150,10 @@ class Url
                 ));
         }
 
+
         # Merge With Given Query Params
         #
-        if (($instruct & self::WITH_GIVEN_QUERY_PARAMS) == self::WITH_GIVEN_QUERY_PARAMS) {
+        if ( ($instruct & self::WITH_GIVEN_QUERY_PARAMS) === self::WITH_GIVEN_QUERY_PARAMS ) {
             if (isset($options['query_params'])) {
                 $uri = \Poirot\Psr7\modifyUri($uri, array(
                     'query' => $options['query_params']
@@ -159,9 +161,10 @@ class Url
             }
         }
 
+
         # Url Encode Path
         #
-        if ($instruct & self::ENCODE_URL == self::ENCODE_URL) {
+        if ( ($instruct & self::ENCODE_URL) === self::ENCODE_URL ) {
             $path   = implode('/', array_map(
                 function ($p) { return rawurlencode($p); }
                 , explode('/', $uri->getPath())
@@ -171,6 +174,19 @@ class Url
             // $uri = $uri->withQuery(urlencode($uri->getQuery()));
         }
 
+
+        # Absolute URL
+        if ( ($instruct & self::ABSOLUTE_URL) === self::ABSOLUTE_URL ) {
+            if (! $uri->getHost() ) {
+                $serverUrl = parse_url( \Module\HttpFoundation\getServerUrl() );
+                $uri = $uri->withScheme($serverUrl['scheme'])
+                    ->withHost($serverUrl['host'])
+                    ->withPort(@$serverUrl['port']);
+            }
+        } else {
+            // Clear Uri Scheme:\\Host:Port\
+            $uri = $uri->withScheme('')->withHost('')->withPort('');
+        }
 
         return $uri;
     }

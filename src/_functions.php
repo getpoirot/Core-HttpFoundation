@@ -218,9 +218,18 @@ namespace Module\HttpFoundation
     {
         /** @var iHttpRequest $request */
         $request = \IOC::httpRequest();
+        if (getenv('PT_SERVER_URL'))
+            // From Environment Variable
+            $serverUrl = getenv('PT_SERVER_URL');
+        elseif (defined('PT_SERVER_URL'))
+            $serverUrl =  constant('PT_SERVER_URL');
+        else
+            $serverUrl  = $request->getProtocol().'://'.$request->getHost();
 
-        $server  = $request->getProtocol().'://'.$request->getHost();
-        return rtrim($server, '/');
+
+        // TODO Validate Server-Url Constant
+
+        return rtrim($serverUrl, '/');
     }
 
     function getBasePath()
@@ -242,14 +251,17 @@ namespace Module\HttpFoundation
             foreach ($request->headers()->get('X-Poirot-Base-Url') as $h)
                 $fromProxy .= $h->renderValueLine();
         }
-        if (isset($fromProxy)) {
+        if (isset($fromProxy))
             $basePath = ($fromProxy == 'no-value') ? '/' : $fromProxy;
-        } elseif (getenv('PT_BASEURL')) {
+        elseif (getenv('PT_BASEURL'))
             // From Environment Variable
             $basePath = getenv('PT_BASEURL');
-        } else {
+        elseif (defined('PT_BASEURL'))
+            $basePath =  constant('PT_BASEURL');
+        else
             $basePath = PhpServer::_($request)->getBaseUrl();
-        }
+
+
         return rtrim($basePath, '/');
     }
 }
