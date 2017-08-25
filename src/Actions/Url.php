@@ -179,7 +179,12 @@ class Url
         # Absolute URL
         if ( ($instruct & self::ABSOLUTE_URL) === self::ABSOLUTE_URL ) {
             if (! $uri->getHost() ) {
-                $serverUrl = parse_url( \Module\HttpFoundation\getServerUrl() );
+                if (isset($options['absolute_url']))
+                    $serverUrl = $options['absolute_url']['server_url'];
+                else
+                    $serverUrl = \Module\HttpFoundation\getServerUrl();
+
+                $serverUrl = parse_url( $serverUrl );
                 $uri = $uri->withScheme($serverUrl['scheme'])
                     ->withHost($serverUrl['host'])
                     ->withPort(@$serverUrl['port']);
