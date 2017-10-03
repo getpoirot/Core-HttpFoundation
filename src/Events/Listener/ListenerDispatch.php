@@ -4,6 +4,7 @@ namespace Module\HttpFoundation\Events\Listener;
 use Poirot\Application\aSapi;
 use Poirot\Events\Listener\aListener;
 use Poirot\Ioc\Container;
+use Poirot\Ioc\instance;
 use Poirot\Router\Interfaces\iRoute;
 use Poirot\Std\InvokableResponder;
 
@@ -117,7 +118,7 @@ class ListenerDispatch
     {
         if (! is_callable($action) ) {
             if (is_string($action))
-                $action = $this->_getActionFromServices($action, $params);
+                $action = $this->_resolveStringToCallable($action, $params);
             elseif (is_array($action)) {
                 /**
                  * Array (
@@ -270,11 +271,16 @@ class ListenerDispatch
      *
      * @return callable
      */
-    protected function _getActionFromServices($aResponder, $params)
+    protected function _resolveStringToCallable($aResponder, $params)
     {
-        ## get action from service container
         /** @see ListenerInitNestedContainer */
         $services   = $this->_t__services;
+
+        if (class_exists($aResponder))
+            return $aResponder = \Poirot\Ioc\newInitIns(new instance($aResponder, $params), $services);
+
+        ## get action from service container
+        #
         try {
             $aResponder = $services->get( $aResponder, $params );
         } catch (\Exception $e) {
