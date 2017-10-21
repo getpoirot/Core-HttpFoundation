@@ -67,6 +67,10 @@ class ListenerDispatch
     {
         $this->_t__services = $services = $sapi->services();
 
+        if ($result !== null)
+            // Do Nothing; Result Generated
+            return;
+
         if (! $route_match instanceof iRoute )
             ## do nothing, unknown route match
             return null;
