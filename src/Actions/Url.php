@@ -184,10 +184,17 @@ class Url
                 else
                     $serverUrl = \Module\HttpFoundation\getServerUrl();
 
+                $originalServerUrl = $serverUrl;
                 $serverUrl = parse_url( $serverUrl );
-                $uri = $uri->withScheme($serverUrl['scheme'])
-                    ->withHost($serverUrl['host'])
-                    ->withPort(@$serverUrl['port']);
+
+                $uri = (isset($serverUrl['scheme'])) ?
+                    $uri->withScheme($serverUrl['scheme']) :$uri->withScheme('http');
+
+                $uri = (isset($serverUrl['host'])) ?
+                    $uri->withHost($serverUrl['host']) :$uri->withHost($originalServerUrl);
+
+                $uri = (isset($serverUrl['port'])) ?
+                    $uri->withPath($serverUrl['port']) : $uri;
             }
         } else {
             // Clear Uri Scheme:\\Host:Port\
