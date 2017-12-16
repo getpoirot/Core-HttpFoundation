@@ -14,7 +14,7 @@ namespace Module\HttpFoundation
      *
      * @return string
      */
-    function getMimeTypeOfFile($file)
+    function getMimeTypeOfFile($file, $fallback = true)
     {
         if ( function_exists('finfo_open') ) {
             $finfo = finfo_open(FILEINFO_MIME_TYPE);
@@ -24,10 +24,12 @@ namespace Module\HttpFoundation
             $mimetype = mime_content_type($file);
         }
 
-        if ( null !== $solved = getMimeTypeFromFilename($file) )
-            ($mimetype === $solved) ?: $mimetype = $solved;
+        if ($fallback) {
+            if ( null !== $solved = getMimeTypeFromFilename($file) )
+                ($mimetype === $solved) ?: $mimetype = $solved;
 
-        if (empty($mimetype)) $mimetype = 'application/octet-stream';
+            if (empty($mimetype)) $mimetype = 'application/octet-stream';
+        }
 
         return $mimetype;
     }
@@ -112,6 +114,7 @@ namespace Module\HttpFoundation
             'movie'   => 'video/x-sgi-movie',
             'mp2'     => 'audio/mpeg',
             'mp3'     => 'audio/mpeg',
+            'mp4'     => 'video/mp4',
             'mpe'     => 'video/mpeg',
             'mpeg'    => 'video/mpeg',
             'mpg'     => 'video/mpeg',

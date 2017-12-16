@@ -215,6 +215,11 @@ class BuildHttpRequestFromPhpServer
             && isset($headers['Content-Type'])
             && strpos($headers['Content-Type'], 'multipart') !== false
         ) {
+            /*
+            if ( intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0 )
+                throw new \RuntimeException('PHP discarded POST data because of request exceeding post_max_size.');
+            */
+
             // it`s multipart POST form data
             ## input raw body not represent in php when method is POST/multipart
             #- usually when sending files or send form data in multipart
@@ -232,13 +237,14 @@ class BuildHttpRequestFromPhpServer
                 # Convert to UploadedFileInterface
                 foreach ($_FILES as $formDataName => $fileSpec)
                     $rawData[$formDataName] = \Poirot\Http\Psr\makeUploadedFileFromSpec($fileSpec);
+
             }
 
             $stream = new StreamBodyMultiPart($rawData, $boundary);
         }
         else
         {
-            // TODO it can be implemented with Upstream Stream
+            // TODO it can be implemented with Upstream Stream (Cachable)
             $stream = new Streamable\STemporary;
             $stream->write(file_get_contents('php://input'));
         }
