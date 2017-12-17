@@ -194,7 +194,7 @@ class Url
                     $uri->withHost($serverUrl['host']) :$uri->withHost($originalServerUrl);
 
                 $uri = (isset($serverUrl['port'])) ?
-                    $uri->withPath($serverUrl['port']) : $uri;
+                    $uri->withPort($serverUrl['port']) : $uri;
             }
         } else {
             // Clear Uri Scheme:\\Host:Port\
