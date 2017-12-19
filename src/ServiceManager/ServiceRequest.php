@@ -10,10 +10,12 @@ use Poirot\Ioc\Container\Service\aServiceContainer;
 class ServiceRequest
     extends aServiceContainer
 {
+    const NAME = 'HttpRequest';
+
     /**
      * @var string Service Name
      */
-    protected $name = 'HttpRequest';
+    protected $name = self::NAME;
 
 
     /**
