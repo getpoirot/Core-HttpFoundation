@@ -7,7 +7,7 @@ use Poirot\Http\HttpResponse;
 use Poirot\Stream\ResourceStream;
 use Poirot\Stream\Streamable;
 
-// TODO in memory cache
+
 class FileServeAction
 {
     /**

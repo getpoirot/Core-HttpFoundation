@@ -93,7 +93,7 @@ class Url
 
         if ($routeName === null)
             ## using matched route
-            $router = $this->_getMatchedRoute();
+            $router = $this->getMatchedRoute();
         else
             $router = $this->router->explore($routeName);
 
@@ -125,7 +125,7 @@ class Url
 
         # Check For Preserving Current Request Route Params
         #
-        $routeMatch = $this->_getMatchedRoute();
+        $routeMatch = $this->getMatchedRoute();
         if ( $routeMatch && is_array($params)
             && ($instruct & self::MERGE_CURRENT_ROUTE_PARAMS) === self::MERGE_CURRENT_ROUTE_PARAMS
         ) {
@@ -208,7 +208,7 @@ class Url
      * Attain Route Match
      * @return iRoute
      */
-    function _getMatchedRoute()
+    function getMatchedRoute()
     {
         if ($this->routeMatch)
             return $this->routeMatch;

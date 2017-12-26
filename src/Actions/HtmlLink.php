@@ -57,10 +57,7 @@ class HtmlLink
      */
     function attachFile($href, $offset = null, array $attributes = array(), $rel = 'stylesheet')
     {
-        if (isset($attributes['type'])) {
-            $rel = $attributes['type'];
-            unset($attributes['type']);
-        }
+        $attributes = array_merge(['type' => 'text/css'], $attributes);
 
         $item = array(
             'rel'  => $rel,
@@ -118,13 +115,21 @@ class HtmlLink
             return;
 
 
-        ($offset !== null) ?: $offset = 0;
+        ($offset !== null) ?: $offset = count($this->links);
 
         $this->_insertIntoPosArray($this->links, $scrStr, $offset);
     }
 
+    // TODO separate as std array method
     protected function _insertIntoPosArray(&$array, $element, $offset)
     {
+        if ($offset == 0)
+            return array_unshift($array, $element);
+
+        if ( $offset + 1 >= count($array) )
+            return array_push($array, $element);
+
+
         // [1, 2, x, 4, 5, 6] ---> before [1, 2], after [4, 5, 6]
         $beforeOffsetPart = array_slice($array, 0, $offset);
         $afterOffsetPart  = array_slice($array, $offset);
@@ -146,7 +151,6 @@ class HtmlLink
     {
         $attributes = $item;
         $link       = '<link';
-        // TODO use something better than foreach for each options
         foreach ($this->itemKeys as $itemKey) {
             if (isset($attributes[$itemKey])) {
                 if (is_array($attributes[$itemKey])) {
