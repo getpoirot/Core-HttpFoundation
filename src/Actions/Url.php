@@ -91,10 +91,12 @@ class Url
             ));
 
 
-        if ($routeName === null)
+        if ($routeName === null) {
             ## using matched route
             $router = $this->getMatchedRoute();
-        else
+            ($router) ?: $router = $this->router;
+
+        } else
             $router = $this->router->explore($routeName);
 
         if ($router === false)
@@ -213,7 +215,7 @@ class Url
         if ($this->routeMatch)
             return $this->routeMatch;
 
-        $router            = $this->router;
+        $router           = $this->router;
         $this->routeMatch = $router->match( $this->request );
         return $this->routeMatch;
     }
