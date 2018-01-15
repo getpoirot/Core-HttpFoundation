@@ -1,17 +1,20 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
+use Poirot\Std\Struct\CollectionPriority;
+use Poirot\Std\Struct\Queue\ReversePriorityQueue;
+
 
 class HtmlLink
 {
     /** the link is inserted in the head section. */
-    protected $links = array();
+    protected $links;
 
     /**
      * Allowed attributes
      * @var string[]
      */
-    protected $itemKeys = array(
+    protected $itemKeys = [
         'charset',
         'href',
         'hreflang',
@@ -24,7 +27,7 @@ class HtmlLink
         'title',
         'extras',
         'itemprop'
-    );
+    ];
 
     /**
      * Flag whether to automatically escape output, must also be
@@ -36,6 +39,14 @@ class HtmlLink
 
 
     /**
+     * HtmlLink constructor.
+     */
+    function __construct()
+    {
+        $this->links = new ReversePriorityQueue;
+    }
+
+    /**
      * Invoke HtmlLink
      *
      * @return $this
@@ -44,6 +55,7 @@ class HtmlLink
     {
         return $this;
     }
+
 
     /**
      * Attach Script File
@@ -59,9 +71,10 @@ class HtmlLink
     {
         $attributes = array_merge(['type' => 'text/css'], $attributes);
 
-        $item = array(
+        $item = [
             'rel'  => $rel,
-            'href' => $href, );
+            'href' => $href,
+        ];
 
         $item = array_merge($attributes, $item);
 
@@ -80,7 +93,7 @@ class HtmlLink
      */
     function hasAttached($scrStr)
     {
-        foreach ($this->links as $item) {
+        foreach (clone $this->links as $item) {
             $pattern = '/href=(["\'])(.*?)\1/';
             if (preg_match($pattern, $item, $matches) >= 0)
                 if (substr_count($scrStr, $matches[2]) > 0)
@@ -100,7 +113,16 @@ class HtmlLink
      */
     function __toString()
     {
-        return implode( PHP_EOL, $this->links );
+        if (! $this->links )
+            return '';
+
+
+        $array = [];
+        foreach (clone $this->links as $element)
+            $array[] = $element;
+
+
+        return implode("\r\n", $array);
     }
 
     /**
@@ -115,29 +137,27 @@ class HtmlLink
             return;
 
 
-        ($offset !== null) ?: $offset = count($this->links);
-
-        $this->_insertIntoPosArray($this->links, $scrStr, $offset);
+        $this->_insertIntoPos($this->links, $scrStr, $offset);
     }
 
-    // TODO separate as std array method
-    protected function _insertIntoPosArray(&$array, $element, $offset)
+
+    /**
+     * @param CollectionPriority $queue
+     * @param $element
+     * @param $offset
+     * @throws \Exception
+     */
+    protected function _insertIntoPos($queue, $element, $offset)
     {
-        if ($offset == 0)
-            return array_unshift($array, $element);
+        if ($offset === null)
+            // Append element to scripts at the end.
+            $offset = count($queue);
 
-        if ( $offset + 1 >= count($array) )
-            return array_push($array, $element);
+        if (! is_int($offset) || $offset < 0)
+            throw new \Exception(sprintf('Invalid Offset Given (%s).', \Poirot\Std\flatten($offset)));
 
 
-        // [1, 2, x, 4, 5, 6] ---> before [1, 2], after [4, 5, 6]
-        $beforeOffsetPart = array_slice($array, 0, $offset);
-        $afterOffsetPart  = array_slice($array, $offset);
-        # insert element in offset
-        $beforeOffsetPart = $beforeOffsetPart + array($offset => $element);
-        # glue them back
-        $array = array_merge($beforeOffsetPart , $afterOffsetPart);
-        arsort($array);
+        $queue->insert($element, $offset);
     }
 
     /**

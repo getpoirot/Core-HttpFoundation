@@ -2,17 +2,21 @@
 namespace Module\HttpFoundation\Actions;
 
 use Poirot\Std\Struct\CollectionPriority;
+use Poirot\Std\Struct\Queue\ReversePriorityQueue;
 
-// TODO To String Items When Its needed; indeed we can store just arrays of attached script
 
 class HtmlScript
 {
+    const INLINE_SCRIPT = 'inline';
+    const HEAD_SCRIPT   = 'head';
+
+
     /** @var string Current Script Section */
     protected $_currSection;
     /** @var array Attached Scripts */
-    protected $scripts = array(
+    protected $scripts = [
         // 'section' => [],
-    );
+    ];
 
     /**
      * Flag whether to automatically escape output, must also be
@@ -34,13 +38,13 @@ class HtmlScript
      *
      * @var array
      */
-    protected $optionalAttributes = array(
+    protected $optionalAttributes = [
         'charset',
         'crossorigin',
         'defer',
         'language',
         'src',
-    );
+    ];
 
 
     /**
@@ -50,7 +54,7 @@ class HtmlScript
      *
      * @return $this
      */
-    function __invoke($section = 'inline')
+    function __invoke($section = self::INLINE_SCRIPT)
     {
         $this->_currSection = (string) $section;
         return $this;
@@ -74,15 +78,15 @@ class HtmlScript
      */
     function attachFile($src, $priority = null, array $attributes = [], $type = 'text/javascript')
     {
-        if (isset($attributes['type'])) {
+        if ( isset($attributes['type']) ) {
             $type = $attributes['type'];
             unset($attributes['type']);
         }
 
-        $item = array(
+        $item = [
             "type"       => $type,
-            "attributes" => array_merge( $attributes, array("src" => (string) $src) )
-        );
+            "attributes" => array_merge( $attributes, ["src" => (string) $src])
+        ];
 
         $this->_insertScriptStr($this->_itemToString($item), $priority);
         return $this;
@@ -100,16 +104,16 @@ class HtmlScript
      */
     function attachScript($script, $priority = null, array $attributes = [], $type = 'text/javascript')
     {
-        if (isset($attributes['type'])) {
+        if ( isset($attributes['type']) ) {
             $type = $attributes['type'];
             unset($attributes['type']);
         }
 
-        $item = array(
+        $item = [
             "source"     => (string) $script,
             "type"       => $type,
             "attributes" => $attributes
-        );
+        ];
 
         $this->_insertScriptStr($this->_itemToString($item), $priority);
         return $this;
@@ -176,7 +180,7 @@ class HtmlScript
         $currSection = $this->_currSection;
 
         if (! array_key_exists($currSection, $this->scripts) )
-            $this->scripts[$currSection] = new CollectionPriority;
+            $this->scripts[$currSection] = new ReversePriorityQueue;
 
         $this->_insertIntoPos($this->scripts[$currSection], $scrStr, $offset);
     }
@@ -191,7 +195,7 @@ class HtmlScript
     {
         if ($offset === null)
             // Append element to scripts at the end.
-            $offset = 0;
+            $offset = count($queue);
 
         if (! is_int($offset) || $offset < 0)
             throw new \Exception(sprintf('Invalid Offset Given (%s).', \Poirot\Std\flatten($offset)));
