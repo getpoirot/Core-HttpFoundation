@@ -280,8 +280,9 @@ class ListenerDispatch
         /** @see ListenerInitNestedContainer */
         $services   = $this->_t__services;
 
-        if (class_exists($aResponder))
+        if ( class_exists($aResponder) )
             return $aResponder = \Poirot\Ioc\newInitIns(new instance($aResponder, $params), $services);
+
 
         ## get action from service container
         #
