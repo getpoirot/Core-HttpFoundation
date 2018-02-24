@@ -1,7 +1,10 @@
 <?php
 namespace Module\HttpFoundation
 {
+
+    use Module\HttpFoundation\Events\Listener\ListenerAssertRouteMatch;
     use Module\HttpFoundation\Events\Listener\ListenerDispatch;
+    use Module\HttpFoundation\Events\Listener\ListenerDispatchResult;
     use Module\HttpFoundation\Events\Listener\ListenerFinish;
     use Module\HttpFoundation\Events\Listener\ListenerMatchRequest;
     use Poirot\Application\Interfaces\iApplication;
@@ -211,14 +214,20 @@ namespace Module\HttpFoundation
             $events->on(
                 EventHeapOfSapi::EVENT_APP_DISPATCH
                 , new Events\Listener\ListenerAssertRouteMatch
-                , -999
+                , ListenerAssertRouteMatch::WEIGHT
             );
 
             # dispatch matched route
             $events->on(
                 EventHeapOfSapi::EVENT_APP_DISPATCH
                 , new Events\Listener\ListenerDispatch
-                , -1000
+                , ListenerDispatch::WEIGHT
+            );
+
+            $events->on(
+                EventHeapOfSapi::EVENT_APP_DISPATCH
+                , new Events\Listener\ListenerDispatchResult
+                , ListenerDispatchResult::WEIGHT
             );
 
 

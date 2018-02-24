@@ -45,6 +45,8 @@ use Poirot\Std\InvokableResponder;
 class ListenerDispatch
     extends aListener
 {
+    const WEIGHT = -1000;
+
     const ACTIONS = 'action';
     const RESULT_DISPATCH = 'result';
 
@@ -80,7 +82,7 @@ class ListenerDispatch
         $params = \Poirot\Std\cast($route_match->params())->toArray();
         if (! isset($params[self::ACTIONS]) )
             ## params as result to renderer..
-            return [ self::RESULT_DISPATCH => $params ];
+            return $params;
 
 
         $result  = &$params;
@@ -94,16 +96,7 @@ class ListenerDispatch
         $invokable = $this->_resolveActionInvokable($action, $params);
 
         $result = call_user_func($invokable);
-
-        /// With Chains Invokable we can define usable result
-        //- return array(
-        //-   ListenerDispatch::RESULT_DISPATCH => $r
-        //- );
-        if ( is_array($result) && isset($result[self::RESULT_DISPATCH]) )
-            $result = $result[self::RESULT_DISPATCH];
-
-        // $result that will resolve to SAPI events
-        return [ self::RESULT_DISPATCH => $result ];
+        return $result;
     }
 
 

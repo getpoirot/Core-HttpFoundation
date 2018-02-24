@@ -11,6 +11,9 @@ use Poirot\Router\Interfaces\iRoute;
 class ListenerAssertRouteMatch
     extends aListener
 {
+    const WEIGHT = -900;
+
+
     /**
      * @param iRoute $route_match
      * @param aSapi  $sapi
