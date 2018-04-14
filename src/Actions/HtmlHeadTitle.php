@@ -4,7 +4,7 @@ namespace Module\HttpFoundation\Actions;
 
 class HtmlHeadTitle
 {
-    protected $separator = '::';
+    protected $separator = ' :: ';
     protected $title = array();
 
 
