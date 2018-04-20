@@ -20,7 +20,7 @@ use Psr\Http\Message\UriInterface;
 \Module\HttpFoundation\Actions::url('main/apanaj.admin/users/manage', [], Url::DEFAULT_INSTRUCT & ~Url::MERGE_CURRENT_ROUTE_PARAMS)
 */
 
-// TODO BASE_URL
+// TODO BASE_URL assemble from within router; sometime we need callback for shell exec without baseurl prefix /v1/ --> /
 class Url
 {
     const INSTRUCT_NOTHING             =      0b1;
