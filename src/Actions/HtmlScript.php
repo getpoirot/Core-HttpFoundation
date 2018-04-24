@@ -119,6 +119,27 @@ class HtmlScript
         return $this;
     }
 
+    function capture()
+    {
+        ob_start();
+    }
+
+    /**
+     * Attach Captured Script Content
+     *
+     * @param array|int $attributes Attributes Or Priority Offset
+     * @param int|null  $priority   Script Priority Offset
+     * @param string    $type       Text/Javascript
+     *
+     * @return $this
+     */
+    function captureDone($priority = null, array $attributes = [], $type = 'text/javascript')
+    {
+        $script = ob_get_clean();
+        $this->attachScript($script, $priority, $attributes, $type);
+        return $this;
+    }
+
     /**
      * Render Attached Scripts
      *
