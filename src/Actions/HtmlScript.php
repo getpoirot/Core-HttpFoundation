@@ -152,9 +152,10 @@ class HtmlScript
             : array();
 
         $array = [];
-        foreach (clone $scripts as $element)
-            $array[] = $element;
-
+        if ( !empty($scripts) ) {
+            foreach (clone $scripts as $element)
+                $array[] = $element;
+        }
 
         return implode("\r\n", $array);
     }
