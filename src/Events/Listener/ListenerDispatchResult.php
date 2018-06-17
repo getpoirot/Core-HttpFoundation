@@ -1,7 +1,9 @@
 <?php
 namespace Module\HttpFoundation\Events\Listener;
 
+use Poirot\Events\EventHeap;
 use Poirot\Events\Listener\aListener;
+use Poirot\Std\Type\StdTravers;
 
 
 class ListenerDispatchResult
@@ -12,11 +14,14 @@ class ListenerDispatchResult
 
 
     /**
+     * @param EventHeap $e
+     *
      * @return array|void
      */
     function __invoke($e = null)
     {
-        $result = \Poirot\Std\cast($e->collector())->toArray();
+        $result = StdTravers::of( $e->collector() )
+            ->toArray();
 
 
         /// With Chains Invokable we can define usable result

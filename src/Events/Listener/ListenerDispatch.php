@@ -6,7 +6,10 @@ use Poirot\Events\Listener\aListener;
 use Poirot\Ioc\Container;
 use Poirot\Ioc\instance;
 use Poirot\Router\Interfaces\iRoute;
+use Poirot\Router\Interfaces\iRouterStack;
+use Poirot\Std\Interfaces\Struct\iDataEntity;
 use Poirot\Std\InvokableResponder;
+use Poirot\Std\Type\StdTravers;
 
 
 /**
@@ -41,10 +44,31 @@ use Poirot\Std\InvokableResponder;
  *           ** callable: can get main registered services as argument function($request, $services)
  *                        "request" is registered service
  *
+ *           (2_3)
+ *           Array (
+ *             ['/module/oauth2/actions/AssertAuthToken'] => 'token'
+ *             [1] => Array (
+ *               [0] => /module/foundation/actions/ParseRequestData
+ *               [1] => /module/oauth2/actions/Register
+ *               ...
+ *
+ *
+ * ListenerDispatch::CONF => [
+ *    'main/auth/signin' => [
+ *       'params' => [
+ *          ListenerDispatch::ACTIONS => [
+ *            10 => function($result = null) {
+ *               kd($result);
+ *            }
+ *          ],
+ *        ],
+ *   ],
+ * ],
  */
 class ListenerDispatch
     extends aListener
 {
+    const CONF   = 'route-actions';
     const WEIGHT = -1000;
 
     const ACTIONS = 'action';
@@ -78,20 +102,19 @@ class ListenerDispatch
             return null;
 
         
-        # setup action responders:
-        $params = \Poirot\Std\cast($route_match->params())->toArray();
+        ## Event
+        #  : before run action
+        #
+        $params = $this->_beforeActionsExecuted($route_match);
+
         if (! isset($params[self::ACTIONS]) )
             ## params as result to renderer..
             return $params;
 
 
-        $result  = &$params;
-        $action  = $params[self::ACTIONS];
+        $result = &$params;
+        $action = $params[self::ACTIONS];
         unset( $params[self::ACTIONS] ); // other route params as argument for actions
-
-
-        if ( is_array($action) ) // because if root params option not an array it will not merged but replaced
-            $action = array_reverse($action); // because route merge params do in desc order
 
         $invokable = $this->_resolveActionInvokable($action, $params);
 
@@ -132,7 +155,7 @@ class ListenerDispatch
                     $invokable->setIdentifier($identifer);
 
                 foreach($action as $actIndex => $act) {
-                    if (!is_int($actIndex)) {
+                    if (! is_int($actIndex) ) {
                         // ['/module/oauth2/actions/AssertAuthToken'] => 'token'
                         $identifer = $act;
                         $act       = $this->_resolveActionInvokable($actIndex, $params, $identifer);
@@ -147,7 +170,7 @@ class ListenerDispatch
             }
         }
 
-        if (!is_callable($action))
+        if (! is_callable($action) )
             throw new \RuntimeException(sprintf(
                 'Action Must Be Callable; given: (%s).', \Poirot\Std\flatten($action)
             ));
@@ -288,5 +311,64 @@ class ListenerDispatch
         }
 
         return $aResponder;
+    }
+
+
+    /**
+     * Gatter Actions Executable
+     *
+     * @param iRouterStack $route_match
+     *
+     * @return array
+     */
+    private function _beforeActionsExecuted(iRouterStack $route_match)
+    {
+        ## Retrieve Params From Route
+        #
+        $params = $route_match->params();
+        if ( $params->count() )
+            $params = StdTravers::of($params)->toArray();
+
+
+        ## Params From Merged Config
+        #
+        $routeName = $route_match->getName();
+        if ( $conf = $this->_getConf($routeName, 'params') ) {
+            $params = \Poirot\Router\mergeRecursive($conf, $params);
+        }
+
+
+        return $params;
+    }
+
+    /**
+     * Get Config Values
+     *
+     * Argument can passed and map to config if exists [$key][$_][$__] ..
+     *
+     * @param $key
+     * @param null $_
+     *
+     * @return mixed|null
+     * @throws \Exception
+     */
+    protected function _getConf($key = null, $_ = null)
+    {
+        // retrieve and cache config
+        $services = $this->_t__services;
+
+        /** @var aSapi $config */
+        $config = $services->get('/sapi');
+        $config = $config->config();
+        /** @var iDataEntity $config */
+        $config = $config->get( self::CONF, [] );
+        foreach (func_get_args() as $key) {
+            if (! isset($config[$key]) )
+                return null;
+
+            $config = $config[$key];
+        }
+
+        return $config;
     }
 }
