@@ -4,6 +4,7 @@ namespace Module\HttpFoundation\Events\Listener;
 use Poirot\Application\aSapi;
 use Poirot\Events\Listener\aListener;
 use Poirot\Ioc\Container\Service\ServiceInstance;
+use Poirot\Psr7\HttpRequest;
 use Poirot\Router\Interfaces\iRouterStack;
 use Poirot\Router\RouterStack;
 
@@ -15,22 +16,34 @@ class ListenerMatchRequest
 
 
     /**
-     * @param aSapi $sapi
+     * Match Request
+     *
+     * @param aSapi              $sapi
+     * @param iRouterStack|mixed $route_match
+     *
      * @return array
      */
     function __invoke($sapi = null, $route_match = null)
     {
-        if ($route_match)
+        if ( $route_match )
             ## route matched
             return null;
 
 
         $services = $sapi->services();
 
-        /** @var iRouterStack $router */
-        $router   = $services->get('Router');
-        $match    = $router->match( $services->fresh('HttpRequest-Psr') );
 
+        ## Match Http Request Against Router
+        #
+        /** @var iRouterStack $router */
+        /** @var HttpRequest $request */
+        $router   = $services->get('Router');
+        $request  = $services->fresh('HttpRequest-Psr');
+        $match    = $router->match($request);
+
+
+        ## Set Router Matched As a Service In Container
+        #
         /** @var RouterStack $routeMatch */
         $route_match = new ServiceInstance;
         /** @see UrlService */
@@ -38,6 +51,11 @@ class ListenerMatchRequest
         $route_match->setService($match);
         $sapi->services()->set($route_match);
 
-        return array(self::RESULT_ROUTE_MATCH => $match); // pass param to event
+
+        ## Pass Matched Route as a Param To Event
+        #
+        return [
+            self::RESULT_ROUTE_MATCH => $match
+        ];
     }
 }
