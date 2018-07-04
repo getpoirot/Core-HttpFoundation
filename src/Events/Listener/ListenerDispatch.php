@@ -106,7 +106,6 @@ class ListenerDispatch
         #  : before run action
         #
         $params = $this->_beforeActionsExecuted($route_match);
-
         if (! isset($params[self::ACTIONS]) )
             ## params as result to renderer..
             return $params;
@@ -119,7 +118,12 @@ class ListenerDispatch
         $invokable = $this->_resolveActionInvokable($action, $params);
 
         $result = call_user_func($invokable);
-        return $result;
+        if ( isset($result[self::RESULT_DISPATCH]) )
+            $result = $result[self::RESULT_DISPATCH];
+
+        return [
+            ListenerDispatch::RESULT_DISPATCH => $result
+        ];
     }
 
 
@@ -155,13 +159,19 @@ class ListenerDispatch
                     $invokable->setIdentifier($identifer);
 
                 foreach($action as $actIndex => $act) {
-                    if (! is_int($actIndex) ) {
+                    if (! is_int($actIndex) )
+                    {
                         // ['/module/oauth2/actions/AssertAuthToken'] => 'token'
-                        $identifer = $act;
-                        $act       = $this->_resolveActionInvokable($actIndex, $params, $identifer);
+                        $tIdentifier = $act;
+                        $act         = $this->_resolveActionInvokable($actIndex, $params, $tIdentifier);
+                        $invokable   = $invokable->thenWith($act, null, $tIdentifier);
+
+                        continue;
                     }
                     else
+                    {
                         $act = $this->_resolveActionInvokable($act, $params);
+                    }
 
                     $invokable = $invokable->thenWith($act, null, $identifer);
                 }
