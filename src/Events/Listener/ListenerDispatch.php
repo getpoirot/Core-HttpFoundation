@@ -118,7 +118,7 @@ class ListenerDispatch
         $invokable = $this->_resolveActionInvokable($action, $params);
 
         $result = call_user_func($invokable);
-        if ( isset($result[self::RESULT_DISPATCH]) )
+        if (is_array($result) && isset($result[self::RESULT_DISPATCH]) )
             $result = $result[self::RESULT_DISPATCH];
 
         return [
