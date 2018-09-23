@@ -219,7 +219,7 @@ class HtmlScript
             // Append element to scripts at the end.
             $offset = count($queue);
 
-        if (! is_int($offset) || $offset < 0)
+        if (! is_int($offset) )
             throw new \Exception(sprintf('Invalid Offset Given (%s).', \Poirot\Std\flatten($offset)));
 
 

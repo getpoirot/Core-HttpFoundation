@@ -26,7 +26,8 @@ class HtmlLink
         'type',
         'title',
         'extras',
-        'itemprop'
+        'itemprop',
+        'crossorigin'
     ];
 
     /**
