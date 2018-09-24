@@ -106,6 +106,7 @@ class ListenerDispatch
         #  : before run action
         #
         $params = $this->_beforeActionsExecuted($route_match);
+
         if (! isset($params[self::ACTIONS]) )
             ## params as result to renderer..
             return $params;
@@ -338,6 +339,8 @@ class ListenerDispatch
         $params = $route_match->params();
         if ( $params->count() )
             $params = StdTravers::of($params)->toArray();
+        else
+            $params = [];
 
 
         ## Params From Merged Config
