@@ -1,28 +1,22 @@
 <?php
 namespace Module\HttpFoundation
 {
-
     use Module\HttpFoundation\Events\Listener\ListenerAssertRouteMatch;
     use Module\HttpFoundation\Events\Listener\ListenerDispatch;
     use Module\HttpFoundation\Events\Listener\ListenerDispatchResult;
     use Module\HttpFoundation\Events\Listener\ListenerFinish;
     use Module\HttpFoundation\Events\Listener\ListenerMatchRequest;
-    use Poirot\Application\Interfaces\iApplication;
     use Poirot\Application\Interfaces\Sapi\iSapiModule;
-    use Poirot\Application\aSapi;
     use Poirot\Application\Interfaces\Sapi;
     use Poirot\Application\ModuleManager\Interfaces\iModuleManager;
     use Poirot\Application\Sapi\Event\EventHeapOfSapi;
-    use Poirot\Application\Sapi\Module\ContainerForFeatureActions;
 
     use Poirot\Http\Interfaces\Respec\iRequestAware;
     use Poirot\Http\Interfaces\Respec\iResponseAware;
     use Poirot\Ioc\Container;
-    use Poirot\Ioc\Container\BuildContainer;
 
     use Poirot\Loader\Autoloader\LoaderAutoloadAggregate;
     use Poirot\Loader\Autoloader\LoaderAutoloadNamespace;
-    use Poirot\Loader\Interfaces\iLoaderAutoload;
 
     use Poirot\Router\BuildRouterStack;
     use Poirot\Router\Interfaces\iRouterStack;
@@ -83,16 +77,7 @@ namespace Module\HttpFoundation
         , Sapi\Module\Feature\iFeatureModuleMergeConfig
     {
         /**
-         * Init Module Against Application
-         *
-         * - determine sapi server, cli or http
-         *
-         * priority: 1000 A
-         *
-         * @param iApplication|aSapi $sapi Application Instance
-         *
-         * @return false|null False mean not setup with other module features (skip module)
-         * @throws \Exception
+         * @inheritdoc
          */
         function initialize($sapi)
         {
@@ -102,53 +87,28 @@ namespace Module\HttpFoundation
         }
 
         /**
-         * Register class autoload on Autoload
-         *
-         * priority: 1000 B
-         *
-         * @param LoaderAutoloadAggregate $baseAutoloader
-         *
-         * @return iLoaderAutoload|array|\Traversable|void
+         * @inheritdoc
          */
         function initAutoload(LoaderAutoloadAggregate $baseAutoloader)
         {
-            #$nameSpaceLoader = \Poirot\Loader\Autoloader\LoaderAutoloadNamespace::class;
-            $nameSpaceLoader = 'Poirot\Loader\Autoloader\LoaderAutoloadNamespace';
             /** @var LoaderAutoloadNamespace $nameSpaceLoader */
-            $nameSpaceLoader = $baseAutoloader->loader($nameSpaceLoader);
+            $nameSpaceLoader = $baseAutoloader->loader(LoaderAutoloadNamespace::class);
             $nameSpaceLoader->addResource(__NAMESPACE__, __DIR__);
         }
 
         /**
-         * Initialize Module Manager
-         *
-         * priority: 1000 C
-         *
-         * @param iModuleManager $moduleManager
-         *
-         * @return void
+         * @inheritdoc
          */
         function initModuleManager(iModuleManager $moduleManager)
         {
-            // ( ! ) ORDER IS MANDATORY
-
+            // Module Is Required.
             if (! $moduleManager->hasLoaded('Foundation') )
-                // Module Is Required.
                 $moduleManager->loadModule('Foundation');
 
         }
 
         /**
-         * Register config key/value
-         *
-         * priority: 1000 D
-         *
-         * - you may return an array or Traversable
-         *   that would be merge with config current data
-         *
-         * @param iDataEntity $config
-         *
-         * @return array|\Traversable
+         * @inheritdoc
          */
         function initConfig(iDataEntity $config)
         {
@@ -156,18 +116,7 @@ namespace Module\HttpFoundation
         }
 
         /**
-         * Build Service Container
-         *
-         * priority: 1000 X
-         *
-         * - register services
-         * - define aliases
-         * - add initializers
-         * - ...
-         *
-         * @param Container $services
-         *
-         * @return array|\Traversable|void Container Builder Config
+         * @inheritdoc
          */
         function initServiceManager(Container $services)
         {
@@ -187,15 +136,7 @@ namespace Module\HttpFoundation
         }
 
         /**
-         * Attach Listeners To Application Events
-         * @see ApplicationEvents
-         *
-         * priority: Just Before Dispatch Request When All Modules Loaded
-         *           Completely
-         *
-         * @param EventHeapOfSapi $events
-         *
-         * @return void
+         * @inheritdoc
          */
         function initSapiEvents(EventHeapOfSapi $events)
         {
@@ -241,13 +182,7 @@ namespace Module\HttpFoundation
         }
 
         /**
-         * Get Action Services
-         *
-         * priority: after GrabRegisteredServices
-         *
-         * - return Array used to Build ModuleActionsContainer
-         *
-         * @return array|ContainerForFeatureActions|BuildContainer|\Traversable
+         * @inheritdoc
          */
         function getActions()
         {
@@ -255,17 +190,9 @@ namespace Module\HttpFoundation
         }
 
         /**
-         * Resolve to service with name
+         * @inheritdoc
          *
-         * - each argument represent requested service by registered name
-         *   if service not available default argument value remains
-         * - "services" as argument will retrieve services container itself.
-         *
-         * ! after all modules loaded
-         *
-         * @param iRouterStack                   $router
-         *
-         * @internal param null $services service names must have default value
+         * @param iRouterStack $router
          */
         function resolveRegisteredServices($router = null)
         {
@@ -292,34 +219,4 @@ namespace Module\HttpFoundation
             $buildRoute->build($router);
         }
     }
-}
-
-
-namespace Module\HttpFoundation
-{
-    use Module\HttpFoundation\Actions\FlashMessage;
-    use Module\HttpFoundation\Actions\HtmlHeadTitle;
-    use Module\HttpFoundation\Actions\HtmlLink;
-    use Module\HttpFoundation\Actions\HtmlScript;
-    use Module\HttpFoundation\Actions\Url;
-
-    /**
-     *
-     * @method static Url           url($routeName = null, $params = array(), $instruct = Url::DEFAULT_INSTRUCT, array $instructOptions = array())
-     * @method static FlashMessage  flashMessage($messageNamespace = 'info')
-     * @method static HtmlScript    htmlScript($section = 'inline')
-     * @method static HtmlLink      htmlLink()
-     * @method static HtmlHeadTitle htmlHeadTitle($title = null)
-     */
-    class Actions extends \IOC
-    { }
-}
-
-namespace Module\HttpFoundation
-{
-    /**
-     * @method static mixed Path()
-     */
-    class Services extends \IOC
-    { }
 }
