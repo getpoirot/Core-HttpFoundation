@@ -1,11 +1,14 @@
 <?php
 namespace Module\HttpFoundation
 {
+
+    use Module\Foundation\Services\PathService\PathAction;
     use Module\HttpFoundation\Events\Listener\ListenerAssertRouteMatch;
     use Module\HttpFoundation\Events\Listener\ListenerDispatch;
     use Module\HttpFoundation\Events\Listener\ListenerDispatchResult;
     use Module\HttpFoundation\Events\Listener\ListenerFinish;
     use Module\HttpFoundation\Events\Listener\ListenerMatchRequest;
+    use Module\HttpFoundation\Router\PreparatorHandleBaseUrl;
     use Poirot\Application\Interfaces\Sapi\iSapiModule;
     use Poirot\Application\Interfaces\Sapi;
     use Poirot\Application\ModuleManager\Interfaces\iModuleManager;
@@ -65,16 +68,21 @@ namespace Module\HttpFoundation
      *   also define a static path "www-assets" point to this url.
      *
      *   @see cor-http_foundation.routes.conf.php
+     *
+     *
+     * - Configuration:
+     *   module is configurable by override "cor-http_foundation"
+     *
      */
     class Module implements iSapiModule
         , Sapi\Module\Feature\iFeatureModuleInitSapi
         , Sapi\Module\Feature\iFeatureModuleAutoload
         , Sapi\Module\Feature\iFeatureModuleInitModuleManager
+        , Sapi\Module\Feature\iFeatureModuleMergeConfig
         , Sapi\Module\Feature\iFeatureModuleInitServices
         , Sapi\Module\Feature\iFeatureModuleInitSapiEvents
         , Sapi\Module\Feature\iFeatureModuleNestActions
         , Sapi\Module\Feature\iFeatureOnPostLoadModulesGrabServices
-        , Sapi\Module\Feature\iFeatureModuleMergeConfig
     {
         /**
          * @inheritdoc
@@ -132,7 +140,8 @@ namespace Module\HttpFoundation
                     $serviceInstance->setRouter( $services->get('Router') );
             });
 
-            return \Poirot\Config\load(__DIR__ . '/../config/cor-http_foundation.servicemanager');
+
+            return include __DIR__ . '/../config/cor-http_foundation.servicemanager.conf.php';
         }
 
         /**
@@ -193,11 +202,36 @@ namespace Module\HttpFoundation
          * @inheritdoc
          *
          * @param iRouterStack $router
+         * @param PathAction $path @IoC /module/foundation/services/Path
          */
-        function resolveRegisteredServices($router = null)
-        {
-            # Register Routes:
+        function resolveRegisteredServices(
+            $router = null
+            , $path = null
+        ) {
+            ## Register Routes:
+            #
             $this->_setupHttpRouter($router);
+
+
+            ## Register Paths and Variables:
+            #
+            if ($path)
+            {
+                // According to route name 'www-assets' to serve statics files
+                // @see cor-http_foundation.routes
+                $path->setPath('www-assets', "\$baseUrl/p/assets/");
+                $path->setVariables([
+                    'serverUrl' => function() { return \Module\HttpFoundation\getServerUrl(); },
+                    'basePath'  => function() { return \Module\HttpFoundation\getBasePath(); },
+                    'baseUrl'   => function() { return \Module\HttpFoundation\getBaseUrl(); },
+                ]);
+            }
+
+
+            // Add BaseURL Strip From URI's
+            // TODO when uploaded file size exceeds the server allowed size; exception rise from within this
+            //      Error While Instancing Merged Config; because of instance command
+            $router->setPreparator(new PreparatorHandleBaseUrl($path));
         }
 
 

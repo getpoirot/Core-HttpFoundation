@@ -8,7 +8,6 @@ use Poirot\Ioc\instance;
 use Poirot\Router\Interfaces\iRouterStack;
 use Poirot\Router\Interfaces\RouterStack\iPreparatorRequest;
 use Poirot\Router\RouterStack;
-use Poirot\Std\Struct\DataEntity;
 
 
 class ServiceRouter
@@ -31,6 +30,7 @@ class ServiceRouter
      * Create Service
      *
      * @return iRouterStack
+     * @throws \Exception
      */
     function newService()
     {
@@ -114,12 +114,10 @@ class ServiceRouter
         $services = $this->services();
 
         /** @var aSapi $config */
-        $config   = $services->get('/sapi');
-        $config   = $config->config();
-        /** @var DataEntity $config */
-        $config   = $config->get(self::CONF, array());
+        $config = $services->get('/sapi');
+        $config = $config->config();
+        $config = $config->{\Module\HttpFoundation\Module::class}->{self::CONF};
 
-        
         if ($key !== null)
             return isset($config[$key]) ? $config[$key] : false;
         
