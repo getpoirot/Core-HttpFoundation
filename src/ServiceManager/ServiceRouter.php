@@ -1,7 +1,8 @@
 <?php
 namespace Module\HttpFoundation\ServiceManager;
 
-use Poirot\Application\aSapi;
+use Poirot\Ioc\Container;
+use Poirot\Ioc\Container\Interfaces\iServiceFeatureDelegate;
 use Poirot\Ioc\Container\Service\aServiceContainer;
 
 use Poirot\Ioc\instance;
@@ -12,6 +13,7 @@ use Poirot\Router\RouterStack;
 
 class ServiceRouter
     extends aServiceContainer
+    implements iServiceFeatureDelegate
 {
     const ROUTE_NAME = 'main';
     const CONF   = 'router_stack';
@@ -38,11 +40,23 @@ class ServiceRouter
         if ($preparator = $this->getPreparator())
             $routerStack->setPreparator($preparator);
 
-        if ($defaultParams = $this->_getConfig('params'))
+        if ($defaultParams = \Poirot\config(\Module\HttpFoundation\Module::class, self::CONF, 'params'))
             // set global router params
             $routerStack->params()->import($defaultParams);
 
         return $routerStack;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    function delegate(Container $container)
+    {
+        # Initialize service dependencies
+        $container->initializer()->addCallable(function($serviceInstance) use ($container) {
+            if (method_exists($serviceInstance, 'setRouter'))
+                $serviceInstance->setRouter( $container->get('Router') );
+        });
     }
 
 
@@ -54,7 +68,7 @@ class ServiceRouter
             return $this->routeName;
         
         
-        $routeName = $this->_getConfig('route_name');
+        $routeName = \Poirot\config(\Module\HttpFoundation\Module::class, self::CONF, 'route_name');
         if ($routeName === false)
             throw new \Exception('Router Service Need Main Route Name; Nothing Given as Config Params.');
         
@@ -96,7 +110,7 @@ class ServiceRouter
      
         if ($this->routePreparator === null) {
             // get from config if has
-            $preparator = $this->_getConfig('preparator');
+            $preparator = \Poirot\config(\Module\HttpFoundation\Module::class, self::CONF, 'preparator');
             if ($preparator) {
                 $this->setPreparator($preparator);
                 return $this->getPreparator();
@@ -106,21 +120,5 @@ class ServiceRouter
         }
         
         return $this->routePreparator;
-    }
-
-    protected function _getConfig($key = null)
-    {
-        # Setup By Configs:
-        $services = $this->services();
-
-        /** @var aSapi $config */
-        $config = $services->get('/sapi');
-        $config = $config->config();
-        $config = $config->{\Module\HttpFoundation\Module::class}->{self::CONF};
-
-        if ($key !== null)
-            return isset($config[$key]) ? $config[$key] : false;
-        
-        return $config;
     }
 }

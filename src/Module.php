@@ -128,19 +128,6 @@ namespace Module\HttpFoundation
          */
         function initServiceManager(Container $services)
         {
-            # Initialize service dependencies
-            $services->initializer()->addCallable(function($serviceInstance) use ($services) {
-                if ($serviceInstance instanceof iRequestAware)
-                    $serviceInstance->setRequest( $services->get('HttpRequest') );
-
-                if ($serviceInstance instanceof iResponseAware)
-                    $serviceInstance->setResponse( $services->get('HttpResponse') );
-
-                if (method_exists($serviceInstance, 'setRouter'))
-                    $serviceInstance->setRouter( $services->get('Router') );
-            });
-
-
             return include __DIR__ . '/../config/cor-http_foundation.servicemanager.conf.php';
         }
 
