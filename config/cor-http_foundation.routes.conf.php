@@ -1,5 +1,7 @@
 <?php
 use Module\HttpFoundation\Events\Listener\ListenerDispatch;
+use Module\HttpFoundation\Events\Listener\ListenerDispatchResult;
+use Module\HttpRenderer\RenderStrategy\RenderRouterStrategy;
 
 
 return [
@@ -11,7 +13,18 @@ return [
             'match_whole' => true,
         ],
         'params'  => [
-            ListenerDispatch::ACTIONS => function() { return []; },
+            ListenerDispatch::ACTIONS => function() {
+                return [
+                    ListenerDispatchResult::RESULT_DISPATCH => [
+                        'message' => 'Welcome!'
+                    ],
+                ];
+            },
+            /*
+            RenderRouterStrategy::ConfRouteParam => [
+                'strategy' => 'json',
+            ],
+            */
         ],
     ],
     'www-assets' => [
