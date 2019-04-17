@@ -14,8 +14,6 @@ namespace Module\HttpFoundation
     use Poirot\Application\ModuleManager\Interfaces\iModuleManager;
     use Poirot\Application\Sapi\Event\EventHeapOfSapi;
 
-    use Poirot\Http\Interfaces\Respec\iRequestAware;
-    use Poirot\Http\Interfaces\Respec\iResponseAware;
     use Poirot\Ioc\Container;
 
     use Poirot\Loader\Autoloader\LoaderAutoloadAggregate;
@@ -189,7 +187,7 @@ namespace Module\HttpFoundation
          * @inheritdoc
          *
          * @param iRouterStack $router
-         * @param PathAction $path @IoC /module/foundation/services/Path
+         * @param PathAction   $path   @IoC /module/foundation/services/Path
          */
         function resolveRegisteredServices(
             $router = null
