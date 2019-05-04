@@ -1,7 +1,6 @@
 <?php
 use Module\HttpFoundation\Events\Listener\ListenerDispatch;
 use Module\HttpFoundation\Events\Listener\ListenerDispatchResult;
-use Module\HttpRenderer\RenderStrategy\RenderRouterStrategy;
 
 
 return [
