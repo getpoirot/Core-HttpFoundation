@@ -1,8 +1,10 @@
 <?php
 namespace Module\HttpFoundation\ServiceManager;
 
+use Poirot\Http\Interfaces\iHttpRequest;
 use Poirot\Http\Psr\ServerRequestBridgeInPsr;
 use Poirot\Ioc\Container\Service\aServiceContainer;
+use Psr\Http\Message\ServerRequestInterface;
 
 
 class ServiceRequestPsr
@@ -15,11 +17,12 @@ class ServiceRequestPsr
     /**
      * Create Service
      *
-     * @return mixed
+     * @return ServerRequestInterface
+     * @throws \Exception
      */
     function newService()
     {
-        $req = $this->services()->from('/')->get('HttpRequest');
+        $req = $this->services()->get(iHttpRequest::class);
         return new ServerRequestBridgeInPsr($req);
     }
 }

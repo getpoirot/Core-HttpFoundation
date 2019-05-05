@@ -1,8 +1,10 @@
 <?php
 namespace Module\HttpFoundation\ServiceManager;
 
+use Poirot\Http\Interfaces\iHttpResponse;
 use Poirot\Http\Psr\ResponseBridgeInPsr;
 use Poirot\Ioc\Container\Service\aServiceContainer;
+use Psr\Http\Message\ResponseInterface;
 
 
 class ServiceResponsePsr
@@ -17,11 +19,12 @@ class ServiceResponsePsr
     /**
      * Create Service
      *
-     * @return mixed
+     * @return ResponseInterface
+     * @throws \Exception
      */
     function newService()
     {
-        $res = $this->services()->from('/')->get('HttpResponse');
+        $res = $this->services()->get(iHttpResponse::class);
         return new ResponseBridgeInPsr($res);
     }
 }

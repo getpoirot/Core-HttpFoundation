@@ -7,6 +7,7 @@ use Poirot\Ioc\Container\Service\ServiceInstance;
 use Poirot\Psr7\HttpRequest;
 use Poirot\Router\Interfaces\iRouterStack;
 use Poirot\Router\RouterStack;
+use Psr\Http\Message\RequestInterface;
 
 
 class ListenerMatchRequest
@@ -18,10 +19,11 @@ class ListenerMatchRequest
     /**
      * Match Request
      *
-     * @param aSapi              $sapi
+     * @param aSapi $sapi
      * @param iRouterStack|mixed $route_match
      *
      * @return array
+     * @throws \Exception
      */
     function __invoke($sapi = null, $route_match = null)
     {
@@ -37,8 +39,8 @@ class ListenerMatchRequest
         #
         /** @var iRouterStack $router */
         /** @var HttpRequest $request */
-        $router   = $services->get('Router');
-        $request  = $services->fresh('HttpRequest-Psr');
+        $router   = $services->get(iRouterStack::class);
+        $request  = $services->fresh(RequestInterface::class);
         $match    = $router->match($request);
 
 
