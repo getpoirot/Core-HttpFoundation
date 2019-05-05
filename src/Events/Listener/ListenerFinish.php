@@ -15,29 +15,32 @@ class ListenerFinish
     /**
      * @param iHttpResponse|iViewModel|string|StreamInterface $result
      * @param aSapi $sapi
+     *
      * @return mixed|void
+     * @throws \Exception
      */
     function __invoke($result = null, $sapi = null)
     {
         $response = $result;
 
-        if ($result instanceof StreamInterface) {
-            $response = $sapi->services()->get('HttpResponse');
-            $response->setBody( $result );
-        } elseif ($result instanceof iViewModel) {
-            $response = $sapi->services()->get('HttpResponse');
-            $bodyStr = $result->render();
-            $response->setBody( $bodyStr );
-        } elseif (\Poirot\Std\isStringify($result)) {
-            $response = $sapi->services()->get('HttpResponse');
-            $response->setBody( (string) $result );
-        }
-
         if (! $response instanceof iHttpResponse )
-            throw new \RuntimeException(sprintf(
-                'Make Response Object From (%s) Is Unknown.'
-                , \Poirot\Std\flatten($result)
-            ));
+        {
+            $response = $sapi->services()->get(iHttpResponse::class);
+
+            if ($result instanceof StreamInterface) {
+                $response->setBody( $result );
+            } elseif ($result instanceof iViewModel) {
+                $bodyStr = $result->render();
+                $response->setBody( $bodyStr );
+            } elseif (\Poirot\Std\isStringify($result)) {
+                $response->setBody( (string) $result );
+            } else {
+                throw new \RuntimeException(sprintf(
+                    'Make Response Object From (%s) Is Unknown.'
+                    , \Poirot\Std\flatten($result)
+                ));
+            }
+        }
 
 
         $this->_sendResponse($response);
