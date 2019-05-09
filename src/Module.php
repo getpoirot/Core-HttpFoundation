@@ -87,7 +87,7 @@ namespace Module\HttpFoundation
          */
         function initialize($sapi)
         {
-            if ( \Poirot\isCommandLine( $sapi->getSapiName() ) )
+            if ( \Poirot\isCommandLine($sapi->getSapiName()) )
                 // Sapi Is Not HTTP. SKIP Module Load!!
                 return false;
         }
@@ -214,9 +214,7 @@ namespace Module\HttpFoundation
 
 
             // Add BaseURL Strip From URI's
-            // TODO when uploaded file size exceeds the server allowed size; exception rise from within this
-            //      Error While Instancing Merged Config; because of instance command
-            $router->setPreparator(new PreparatorHandleBaseUrl($path));
+            $router->addPreparator(new PreparatorHandleBaseUrl($path), 900);
         }
 
 

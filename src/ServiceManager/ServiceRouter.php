@@ -24,7 +24,7 @@ class ServiceRouter
     
     /** @var string */
     protected $routeName;
-    /** @var iPreparatorRequest */
+    /** @var iPreparatorRequest[] */
     protected $routePreparator;
 
 
@@ -38,7 +38,7 @@ class ServiceRouter
     {
         $routerStack    = new RouterStack( $this->getRouteName() );
         if ($preparator = $this->getPreparator())
-            $routerStack->setPreparator($preparator);
+            $routerStack->setPreparators($preparator);
 
         if ($defaultParams = \Poirot\config(\Module\HttpFoundation\Module::class, self::CONF, 'params'))
             // set global router params
@@ -97,7 +97,7 @@ class ServiceRouter
     /**
      * Get Route Preparator If Has
      * 
-     * @return null|iPreparatorRequest
+     * @return null|iPreparatorRequest[]
      * @throws \Exception
      */
     function getPreparator()

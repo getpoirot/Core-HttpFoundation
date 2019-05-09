@@ -18,44 +18,56 @@ class PreparatorHandleBaseUrl
     /**
      * StripPrefix constructor.
      *
-     * @param PathAction $path @IoC /module/Foundation/services/
+     * @param PathAction $path @IoC /module/Foundation/services/Path
      */
     function __construct(PathAction $path)
     {
-        $baseUrl = $path->assemble('$baseUrl');
+        try {
+            $baseUrl = $path->assemble('$baseUrl');
+        } catch (\Exception $e) {
+            $baseUrl = null;
+        }
+
         if ($baseUrl && $baseUrl !== '/' ) {
             $this->baseUrl = $baseUrl;
             parent::__construct($baseUrl);
         }
     }
 
+
     /**
-     * Prepare Request Object
+     * Prepare Request Object Before Match Route Against Request Object
      *
      * @param RequestInterface $request
+     * @param \Closure         $nextCallableChain Closure callable to next same method from chain
      *
      * @return RequestInterface Clone
      */
-    function withRequestOnMatch(RequestInterface $request)
+    function beforeMatchRequest(RequestInterface $request, $nextCallableChain = null)
     {
         if ($this->baseUrl === null)
-            return $request;
+            // let chain continue execution or just return result
+            return ($nextCallableChain) ? $nextCallableChain($request) : $request;
 
-        return parent::withRequestOnMatch($request);
+
+        return parent::beforeMatchRequest($request);
     }
 
     /**
-     *
+     * Prepare Assembled URI
      *
      * @param UriInterface $uri
+     * @param \Closure     $nextCallableChain Closure callable to next same method from chain
      *
      * @return UriInterface
      */
-    function withUriOnAssemble(UriInterface $uri)
+    function afterAssembleUri(UriInterface $uri, $nextCallableChain = null)
     {
         if ($this->baseUrl === null)
-            return $uri;
+            // let chain continue execution or just return result
+            return ($nextCallableChain) ? $nextCallableChain($uri) : $uri;
 
-        return parent::withUriOnAssemble($uri);
+
+        return parent::afterAssembleUri($uri);
     }
 }
