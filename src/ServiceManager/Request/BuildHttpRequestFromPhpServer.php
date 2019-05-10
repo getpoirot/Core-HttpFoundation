@@ -5,6 +5,7 @@ use Poirot\Http\HttpMessage\Request\Plugin\PhpServer;
 use Poirot\Http\HttpMessage\Request\StreamBodyMultiPart;
 use Poirot\Http\Interfaces\iHttpRequest;
 
+use Poirot\Stream\ResourceStream;
 use Poirot\Stream\Streamable;
 
 
@@ -244,10 +245,10 @@ class BuildHttpRequestFromPhpServer
         }
         else
         {
-            $stream = new Streamable\STemporary;
-            $stream->write(file_get_contents('php://input'));
+            $stream = new Streamable\SUpstream(new ResourceStream(
+                fopen('php://memory', 'r+')
+            ));
         }
-
         
         $stream->rewind(); // ensure we are at start body
         return $stream;
