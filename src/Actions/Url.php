@@ -42,6 +42,8 @@ class Url
 
     protected $_c__lastInvokedRouter = [];
 
+    protected $serverUrl;
+
 
     /**
      * UrlAction constructor.
@@ -184,7 +186,7 @@ class Url
                 if (isset($options['absolute_url']))
                     $serverUrl = $options['absolute_url']['server_url'];
                 else
-                    $serverUrl = \Module\HttpFoundation\getServerUrl();
+                    $serverUrl = $this->getServerUrlDefault();
 
                 $originalServerUrl = $serverUrl;
                 $serverUrl = parse_url( $serverUrl );
@@ -227,12 +229,22 @@ class Url
         } catch (\Throwable $e)
         {
             $return = $e->getMessage();
-        } catch (\Exception $e)
-        {
-            $return = $e->getMessage();
         }
 
 
         return $return;
+    }
+
+    // Options:
+
+    function setServerUrlDefault($serverUrl)
+    {
+        $this->serverUrl = $serverUrl;
+        return $this;
+    }
+
+    function getServerUrlDefault()
+    {
+        return $this->serverUrl;
     }
 }

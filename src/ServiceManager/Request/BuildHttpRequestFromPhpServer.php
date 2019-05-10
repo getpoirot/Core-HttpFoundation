@@ -215,10 +215,10 @@ class BuildHttpRequestFromPhpServer
             && isset($headers['Content-Type'])
             && strpos($headers['Content-Type'], 'multipart') !== false
         ) {
-            /*
             if ( intval($_SERVER['CONTENT_LENGTH']) > 0 && count($_POST) === 0 )
-                throw new \RuntimeException('PHP discarded POST data because of request exceeding post_max_size.');
-            */
+                throw new \RuntimeException(
+                    'PHP discarded POST data because of request exceeding post_max_size.'
+                );
 
             // it`s multipart POST form data
             ## input raw body not represent in php when method is POST/multipart
@@ -244,7 +244,6 @@ class BuildHttpRequestFromPhpServer
         }
         else
         {
-            // TODO it can be implemented with Upstream Stream (Cachable)
             $stream = new Streamable\STemporary;
             $stream->write(file_get_contents('php://input'));
         }

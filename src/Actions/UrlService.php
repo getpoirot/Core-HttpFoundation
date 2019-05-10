@@ -1,6 +1,7 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
+use Module\HttpFoundation\Request\Plugin\ServerPathUrl;
 use Poirot\Ioc\Container\Service\aServiceContainer;
 
 
@@ -28,6 +29,11 @@ class UrlService
             $services->from('/')->get('Router')
             , $services->from('/')->get('HttpRequest-Psr')
             , $routeMatch ? $routeMatch : null
+        );
+
+        $rAction->setServerUrlDefault(
+            ServerPathUrl::_($services->from('/')->get('HttpRequest'))
+                ->getServerUrl()
         );
 
         return $rAction;

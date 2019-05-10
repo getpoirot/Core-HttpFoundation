@@ -8,12 +8,14 @@ namespace Module\HttpFoundation
     use Module\HttpFoundation\Events\Listener\ListenerDispatchResult;
     use Module\HttpFoundation\Events\Listener\ListenerFinish;
     use Module\HttpFoundation\Events\Listener\ListenerMatchRequest;
+    use Module\HttpFoundation\Request\Plugin\ServerPathUrl;
     use Module\HttpFoundation\Router\PreparatorHandleBaseUrl;
     use Poirot\Application\Interfaces\Sapi\iSapiModule;
     use Poirot\Application\Interfaces\Sapi;
     use Poirot\Application\ModuleManager\Interfaces\iModuleManager;
     use Poirot\Application\Sapi\Event\EventHeapOfSapi;
 
+    use Poirot\Http\Interfaces\iHttpRequest;
     use Poirot\Ioc\Container;
 
     use Poirot\Loader\Autoloader\LoaderAutoloadAggregate;
@@ -187,10 +189,12 @@ namespace Module\HttpFoundation
          * @inheritdoc
          *
          * @param iRouterStack $router
+         * @param iHttpRequest $request @IoC /httpRequest
          * @param PathAction   $path   @IoC /module/foundation/services/Path
          */
         function resolveRegisteredServices(
             $router = null
+            , $request = null
             , $path = null
         ) {
             ## Register Routes:
@@ -206,9 +210,9 @@ namespace Module\HttpFoundation
                 // @see cor-http_foundation.routes
                 $path->setPath('www-assets', "\$baseUrl/p/assets/");
                 $path->setVariables([
-                    'serverUrl' => function() { return \Module\HttpFoundation\getServerUrl(); },
-                    'basePath'  => function() { return \Module\HttpFoundation\getBasePath(); },
-                    'baseUrl'   => function() { return \Module\HttpFoundation\getBaseUrl(); },
+                    'serverUrl' => function() use ($request) { return ServerPathUrl::_($request)->getServerUrl(); },
+                    'basePath'  => function() use ($request) { return ServerPathUrl::_($request)->getBasePath(); },
+                    'baseUrl'   => function() use ($request) { return ServerPathUrl::_($request)->getBaseUrl(); },
                 ]);
             }
 
