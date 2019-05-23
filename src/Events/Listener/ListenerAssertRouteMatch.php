@@ -1,7 +1,7 @@
 <?php
 namespace Module\HttpFoundation\Events\Listener;
 
-use Poirot\Application\Exception\exRouteNotMatch;
+use Poirot\Application\Exception\ErrorRouteNotMatch;
 use Poirot\Application\aSapi;
 use Poirot\Events\Listener\aListener;
 use Poirot\Http\HttpRequest;
@@ -31,7 +31,7 @@ class ListenerAssertRouteMatch
 
         /** @var HttpRequest $request */
         $request = $services->get('HttpRequest');
-        throw new exRouteNotMatch(sprintf(
+        throw new ErrorRouteNotMatch(sprintf(
             'Route Not Match On %s %s'
             , $request->getMethod(), $request->getTarget()
         ));
