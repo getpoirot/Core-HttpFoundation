@@ -142,7 +142,7 @@ namespace Module\HttpFoundation
             $events->on(
                 EventHeapOfSapi::EVENT_APP_MATCH_REQUEST
                 , new ListenerMatchRequest
-                , -10
+                , ListenerMatchRequest::WEIGHT
             );
 
 

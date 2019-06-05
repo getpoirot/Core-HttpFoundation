@@ -11,18 +11,22 @@ use Poirot\Router\Interfaces\iRoute;
 class ListenerAssertRouteMatch
     extends aListener
 {
-    const WEIGHT = -900;
+    const WEIGHT = 0;
 
 
     /**
-     * @param iRoute $route_match
-     * @param aSapi  $sapi
+     * Throw Exception If Route Not Matched
+     *
+     * @param mixed|null $result
+     * @param iRoute     $route_match
+     * @param aSapi      $sapi
      *
      * @return void
+     * @throws \Exception
      */
-    function __invoke($route_match = null, $sapi = null)
+    function __invoke($result = null, $route_match = null, $sapi = null)
     {
-        if ($route_match)
+        if ($route_match || $result !== null)
             // Nothing to do
             return;
 

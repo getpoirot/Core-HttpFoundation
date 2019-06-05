@@ -9,7 +9,7 @@ use Poirot\Std\Type\StdTravers;
 class ListenerDispatchResult
     extends aListener
 {
-    const WEIGHT = ListenerDispatch::WEIGHT - 100;
+    const WEIGHT = ListenerDispatch::WEIGHT - 100; // after dispatch
     const RESULT_DISPATCH = 'result';
 
 
@@ -28,7 +28,7 @@ class ListenerDispatchResult
         //- return array(
         //-   ListenerDispatch::RESULT_DISPATCH => $r
         //- );
-        if ( is_array($result) && isset($result[self::RESULT_DISPATCH]) )
+        if ( isset($result[self::RESULT_DISPATCH]) )
             $result = $result[self::RESULT_DISPATCH];
 
         // $result that will resolve to SAPI events

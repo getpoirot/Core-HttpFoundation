@@ -69,7 +69,7 @@ class ListenerDispatch
     extends aListener
 {
     const CONF   = 'route-actions';
-    const WEIGHT = -1000;
+    const WEIGHT = -100;
 
     const ACTIONS = 'action';
     const RESULT_DISPATCH = 'result';

@@ -13,6 +13,7 @@ use Psr\Http\Message\RequestInterface;
 class ListenerMatchRequest
     extends aListener
 {
+    const WEIGHT = -10;
     const RESULT_ROUTE_MATCH = 'route_match';
 
 
