@@ -10,6 +10,9 @@ use Poirot\Stream\Streamable;
 
 class FileServeAction
 {
+    protected $baseDir;
+
+
     /**
      * FileServeAction constructor.
      * @param string $baseDir
@@ -18,6 +21,7 @@ class FileServeAction
     {
         $this->baseDir = (string) $baseDir;
     }
+
 
     /**
      * @param string $file
@@ -57,8 +61,8 @@ class FileServeAction
     private function _makeResponse($statusCode = 200, $body = null, array $headers = null)
     {
         $builderOptions = [ 'status_code' => $statusCode, ];
-        ($body === null)    ?: $builderOptions += ['body' => $body];
-        ($headers === null) ?: $builderOptions += ['headers' => $headers];
+        ($body === null)    ?: $builderOptions['body'] = $body;
+        ($headers === null) ?: $builderOptions['headers'] = $headers;
 
         $builder  = new BuildHttpResponse($builderOptions);
         $response = new HttpResponse($builder);

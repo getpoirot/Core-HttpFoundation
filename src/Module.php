@@ -6,7 +6,7 @@ namespace Module\HttpFoundation
     use Module\HttpFoundation\Events\Listener\ListenerAssertRouteMatch;
     use Module\HttpFoundation\Events\Listener\ListenerDispatch;
     use Module\HttpFoundation\Events\Listener\ListenerDispatchResult;
-    use Module\HttpFoundation\Events\Listener\ListenerFinish;
+    use Module\HttpFoundation\Events\Listener\SendHttpResponseOnFinish;
     use Module\HttpFoundation\Events\Listener\ListenerMatchRequest;
     use Module\HttpFoundation\Request\Plugin\ServerPathUrl;
     use Module\HttpFoundation\Router\PreparatorHandleBaseUrl;
@@ -172,7 +172,7 @@ namespace Module\HttpFoundation
 
             $events->on(
                 EventHeapOfSapi::EVENT_APP_FINISH
-                , new ListenerFinish
+                , new SendHttpResponseOnFinish
                 , -1000
             );
         }
