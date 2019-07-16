@@ -5,6 +5,7 @@ use Poirot\Http\HttpMessage\Request\Plugin\PhpServer;
 use Poirot\Http\HttpMessage\Request\StreamBodyMultiPart;
 use Poirot\Http\Interfaces\iHttpRequest;
 
+use function Poirot\Psr7\buildQuery;
 use Poirot\Stream\ResourceStream;
 use Poirot\Stream\Streamable;
 
@@ -242,11 +243,13 @@ class BuildHttpRequestFromPhpServer
             }
 
             $stream = new StreamBodyMultiPart($rawData, $boundary);
-        }
-        else
-        {
+
+        } elseif ($this->getMethod() == 'POST') {
+            $stream = new Streamable\STemporary(buildQuery($_POST));
+
+        } else {
             $stream = new Streamable\SUpstream(new ResourceStream(
-                fopen('php://memory', 'r+')
+                fopen('php://input', 'r+')
             ));
         }
         

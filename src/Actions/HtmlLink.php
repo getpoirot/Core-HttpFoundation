@@ -4,6 +4,18 @@ namespace Module\HttpFoundation\Actions;
 use Poirot\Std\Struct\CollectionPriority;
 use Poirot\Std\Struct\Queue\ReversePriorityQueue;
 
+/*
+\Module\HttpFoundation\Actions::htmlLink()
+    ->attachFile(
+        \Module\Foundation\Actions::path( Module::ASSETS, ['file' => 'css/style.min.css?v='.$ver] )
+        , null
+        , [
+            'crossorigin' => 'anonymous'
+        ]
+    )
+    ->attachFile( \Module\Foundation\Actions::path(Module::ASSETS, ['file' => 'fonts/fontawesome/css/fontawesome-all.min.css']))
+;
+*/
 
 class HtmlLink
 {
