@@ -13,6 +13,8 @@ class ServerPathUrl
 {
     function getServerUrl()
     {
+        // TODO move to Poirot Skeleton
+
         /** @var iHttpRequest $request */
         $request = $this->getMessageObject();
         if (getenv('PT_SERVER_URL'))
@@ -29,14 +31,6 @@ class ServerPathUrl
         return rtrim($serverUrl, '/');
     }
 
-    function getBasePath()
-    {
-        /** @var iHttpRequest $request */
-        $request = $this->getMessageObject();
-        $basePath = PhpServer::_($request)->getBasePath();
-        return rtrim($basePath, '/');
-    }
-
     function getBaseUrl()
     {
         /** @var iHttpRequest $request */
@@ -46,6 +40,7 @@ class ServerPathUrl
             $fromProxy = renderHeaderValue($request, 'X-Poirot-Base-Url');
         }
 
+        // TODO move to Poirot Skeleton
         if ( isset($fromProxy) )
             $basePath = ($fromProxy == 'no-value') ? '/' : $fromProxy;
         elseif (getenv('PT_BASEURL'))
@@ -57,6 +52,14 @@ class ServerPathUrl
             $basePath = PhpServer::_($request)->getBaseUrl();
 
 
+        return rtrim($basePath, '/');
+    }
+
+    function getBasePath()
+    {
+        /** @var iHttpRequest $request */
+        $request = $this->getMessageObject();
+        $basePath = PhpServer::_($request)->getBasePath();
         return rtrim($basePath, '/');
     }
 }
