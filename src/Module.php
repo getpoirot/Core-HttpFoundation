@@ -25,6 +25,7 @@ namespace Module\HttpFoundation
     use Poirot\Router\Interfaces\iRouterStack;
 
     use Poirot\Std\Interfaces\Struct\iDataEntity;
+    use Poirot\Std\Type\StdTravers;
 
 
     /**
@@ -233,10 +234,14 @@ namespace Module\HttpFoundation
          */
         protected function _setupHttpRouter(iRouterStack $router)
         {
-            $routes = include __DIR__ . '/../config/cor-http_foundation.routes.conf.php';
-            $buildRoute = new BuildRouterStack();
-            $buildRoute->setRoutes($routes);
+            if (! $routes = \Poirot\Config\load(__DIR__ . '/../config/routes') )
+                throw new \RuntimeException(sprintf(
+                    'Error loading route file for Http Module.'
+                ));
 
+
+            $buildRoute = new BuildRouterStack();
+            $buildRoute->setRoutes(StdTravers::of($routes)->toArray());
             $buildRoute->build($router);
         }
     }

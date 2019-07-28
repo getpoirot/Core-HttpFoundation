@@ -13,9 +13,9 @@ class UrlService
 
 
     /**
-     * Create Service
+     * @inheritdoc
      *
-     * @return mixed
+     * @return Url
      */
     function newService()
     {
@@ -28,7 +28,7 @@ class UrlService
         $rAction = new Url(
             $services->from('/')->get('Router')
             , $services->from('/')->get('HttpRequest-Psr')
-            , $routeMatch ? $routeMatch : null
+            , $routeMatch ??  null
         );
 
         $rAction->setServerUrlDefault(

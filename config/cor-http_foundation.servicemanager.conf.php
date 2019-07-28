@@ -1,4 +1,6 @@
 <?php
+
+use Poirot\Application\Interfaces\iExceptionDescriber;
 use Poirot\Http\Interfaces\iHttpRequest;
 use Poirot\Http\Interfaces\iHttpResponse;
 use Poirot\Router\Interfaces\iRouterStack;
@@ -23,5 +25,8 @@ return [
         'HttpResponse-Psr' => \Module\HttpFoundation\ServiceManager\ServiceResponsePsr::class,
 
         'Router' => \Module\HttpFoundation\ServiceManager\ServiceRouter::class,
+
+        // Exception Http(html) Formatter
+        iExceptionDescriber::class => \Module\HttpFoundation\Sapi\ExceptionHttpDescriber::class,
     ],
 ];

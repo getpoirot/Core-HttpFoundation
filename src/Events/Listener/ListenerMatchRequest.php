@@ -48,12 +48,12 @@ class ListenerMatchRequest
         ## Set Router Matched As a Service In Container
         #
         /** @var RouterStack $routeMatch */
-        $route_match = new ServiceInstance;
         /** @see UrlService */
-        $route_match->setName('router.match');
-        $route_match->setService($match);
-        $sapi->services()->set($route_match);
+        $route_match = (new ServiceInstance)
+            ->setName('router.match')
+            ->setService($match);
 
+        $sapi->services()->set($route_match);
 
 
         ## Pass Matched Route as a Param To Event
