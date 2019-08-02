@@ -1,7 +1,6 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
-use Poirot\Std\Struct\CollectionPriority;
 use Poirot\Std\Struct\Queue\ReversePriorityQueue;
 
 /*
@@ -19,8 +18,10 @@ use Poirot\Std\Struct\Queue\ReversePriorityQueue;
 
 class HtmlLink
 {
-    /** the link is inserted in the head section. */
-    protected $links;
+    /** @var ReversePriorityQueue */
+    protected $linksQueue;
+    /** @var bool */
+    protected $isFlushed = false;
 
     /**
      * Allowed attributes
@@ -52,19 +53,11 @@ class HtmlLink
 
 
     /**
-     * HtmlLink constructor.
-     */
-    function __construct()
-    {
-        $this->links = new ReversePriorityQueue;
-    }
-
-    /**
-     * Invoke HtmlLink
+     * HtmlLink as a Callable
      *
      * @return $this
      */
-    function __invoke($_ = null)
+    function __invoke()
     {
         return $this;
     }
@@ -73,51 +66,34 @@ class HtmlLink
     /**
      * Attach Script File
      *
-     * @param string    $href       Http Url To File
-     * @param int|null  $offset     Script Priority Offset
-     * @param array|int $attributes Attributes Or Priority Offset
-     * @param string    $rel        stylesheet
+     * @param string $href          Http Url To File
+     * @param int|null              $offset Script Priority Offset
+     * @param array|int $attributes Attributes html
+     * @param string $rel           stylesheet
      *
      * @return $this
+     * @throws \Exception
      */
-    function attachFile($href, $offset = null, array $attributes = array(), $rel = 'stylesheet')
+    function attachFile(string $href, ?int $offset = null, array $attributes = [], $rel = 'stylesheet')
     {
-        $attributes = array_merge(['type' => 'text/css'], $attributes);
+        if ($this->isFlushed)
+            throw new \RuntimeException(sprintf(
+                'HtmlLinks are already flushed while attaching (%s).'
+                    , $href
+            ));
 
-        $item = [
+
+        $attributes   = array_merge(['type' => 'text/css'], $attributes);
+        $linkDataItem = array_merge($attributes, [
             'rel'  => $rel,
             'href' => $href,
-        ];
+        ]);
 
-        $item = array_merge($attributes, $item);
+        if (! $this->_hasAttached($linkDataItem) )
+            $this->_insertAttachedFile($linkDataItem, $offset);
 
-        $this->_insertLinkStr( $this->_itemToString($item), $offset );
         return $this;
     }
-
-    /**
-     * Is the link specified a duplicate?
-     *
-     * - look in all sections
-     *
-     * @param string $scrStr
-     *
-     * @return bool
-     */
-    function hasAttached($scrStr)
-    {
-        foreach (clone $this->links as $item) {
-            $pattern = '/href=(["\'])(.*?)\1/';
-            if (preg_match($pattern, $item, $matches) >= 0)
-                if (substr_count($scrStr, $matches[2]) > 0)
-                    return true;
-        }
-
-        return false;
-    }
-
-
-    // ..
 
     /**
      * Render Attached Links
@@ -126,51 +102,54 @@ class HtmlLink
      */
     function __toString()
     {
-        if (! $this->links )
-            return '';
+        if ($this->isFlushed)
+            trigger_error('HtmlLinks are currently flushed you could`t send output twice.', E_USER_ERROR);
 
 
-        $array = [];
-        foreach (clone $this->links as $element)
-            $array[] = $element;
+        $r = '';
+        if ( $this->_getLinksQueue()->isEmpty() )
+            return $r;
 
 
-        return implode("\r\n", $array);
+        foreach ($this->_getLinksQueue() as $element)
+            $r .= $this->_itemToString($element) . PHP_EOL;
+
+        $this->isFlushed = true;
+        return $r;
     }
 
-    /**
-     * Add Script To List
-     *
-     * @param string  $scrStr
-     * @param int     $offset
-     */
-    protected function _insertLinkStr($scrStr, $offset = null)
-    {
-        if ($this->hasAttached($scrStr))
-            return;
-
-
-        $this->_insertIntoPos($this->links, $scrStr, $offset);
-    }
-
+    // ..
 
     /**
-     * @param CollectionPriority $queue
      * @param $element
      * @param $offset
      * @throws \Exception
      */
-    protected function _insertIntoPos($queue, $element, $offset)
+    protected function _insertAttachedFile($element, ?int $offset = null)
     {
         if ($offset === null)
             // Append element to scripts at the end.
-            $offset = count($queue);
-
-        if (! is_int($offset) || $offset < 0)
-            throw new \Exception(sprintf('Invalid Offset Given (%s).', \Poirot\Std\flatten($offset)));
+            $offset = $this->_getLinksQueue()->count();
 
 
-        $queue->insert($element, $offset);
+        $this->_getLinksQueue()->insert($element, $offset);
+    }
+
+    /**
+     * Is the link specified a duplicate?
+     *
+     * @param array $linkDataItem
+     *
+     * @return bool
+     */
+    protected function _hasAttached(array $linkDataItem)
+    {
+        foreach (clone $this->_getLinksQueue() as $item) {
+            if ( 0 < substr_count($linkDataItem['href'], $item['href']) )
+                return true;
+        }
+
+        return false;
     }
 
     /**
@@ -184,38 +163,52 @@ class HtmlLink
     {
         $attributes = $item;
         $link       = '<link';
-        foreach ($this->itemKeys as $itemKey) {
-            if (isset($attributes[$itemKey])) {
-                if (is_array($attributes[$itemKey])) {
-                    foreach ($attributes[$itemKey] as $key => $value) {
-                        $link .= sprintf(' %s="%s"', $key, ($this->autoEscape) ? addslashes($value) : $value);
-                    }
-                } else {
-                    $link .= sprintf(
-                        ' %s="%s"',
-                        $itemKey,
-                        ($this->autoEscape) ? addslashes($attributes[$itemKey]) : $attributes[$itemKey]
-                    );
-                }
+        foreach ($this->itemKeys as $itemKey)
+        {
+            if (! isset($attributes[$itemKey]) )
+                continue;
+
+            if ( is_array($attributes[$itemKey]) ) {
+                foreach ($attributes[$itemKey] as $key => $value)
+                    $link .= sprintf(' %s="%s"', $key, ($this->autoEscape) ? addslashes($value) : $value);
+            } else {
+                $link .= sprintf(
+                    ' %s="%s"',
+                    $itemKey,
+                    ($this->autoEscape) ? addslashes($attributes[$itemKey]) : $attributes[$itemKey]
+                );
             }
         }
 
         $link .= ' />';
 
-        if (($link == '<link />') || ($link == '<link>')) {
+        if (($link == '<link />') || ($link == '<link>'))
             return '';
-        }
+
         if (isset($attributes['conditionalStylesheet'])
             && !empty($attributes['conditionalStylesheet'])
             && is_string($attributes['conditionalStylesheet'])
         ) {
             // inner wrap with comment end and start if !IE
-            if (str_replace(' ', '', $attributes['conditionalStylesheet']) === '!IE') {
+            if (str_replace(' ', '', $attributes['conditionalStylesheet']) === '!IE')
                 $link = '<!-->' . $link . '<!--';
-            }
+
             $link = '<!--[if ' . $attributes['conditionalStylesheet'] . ']>' . $link . '<![endif]-->';
         }
 
         return $link;
+    }
+
+    /**
+     * Attached Link Files Queue
+     *
+     * @return ReversePriorityQueue
+     */
+    protected function _getLinksQueue()
+    {
+        if (! $this->linksQueue )
+            $this->linksQueue = new ReversePriorityQueue;
+
+        return $this->linksQueue;
     }
 }
