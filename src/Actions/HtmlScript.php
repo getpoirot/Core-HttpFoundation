@@ -1,6 +1,7 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
+use Module\HttpFoundation\Actions\HtmlScript\GroupScript;
 use Poirot\Std\Struct\Queue\ReversePriorityQueue;
 
 
@@ -161,6 +162,16 @@ class HtmlScript
     }
 
     /**
+     * Start Grouping Scripts
+     *
+     * @return GroupScript
+     */
+    function group()
+    {
+        return new GroupScript($this);
+    }
+
+    /**
      * Render Attached Scripts
      *
      * @return string
@@ -196,9 +207,9 @@ class HtmlScript
         $duplicate = false;
         foreach($this->scripts as $section) {
             foreach (clone $section as $item) {
-                if ( isset($scriptDataItem['source']) )
-                    $duplicate |= @$item['source'] == $scriptDataItem['source'];
-                else
+                if ( isset($scriptDataItem['source']) && isset($item['source']))
+                    $duplicate |= $item['source'] == $scriptDataItem['source'];
+                elseif (isset($scriptDataItem['attributes']['src']))
                     $duplicate |= @$item['attributes']['src'] == $scriptDataItem['attributes']['src'];
 
                 if ($duplicate)

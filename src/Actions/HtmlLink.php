@@ -1,6 +1,7 @@
 <?php
 namespace Module\HttpFoundation\Actions;
 
+use Module\HttpFoundation\Actions\HtmlLink\GroupLink;
 use Poirot\Std\Struct\Queue\ReversePriorityQueue;
 
 /*
@@ -93,6 +94,16 @@ class HtmlLink
             $this->_insertAttachedFile($linkDataItem, $offset);
 
         return $this;
+    }
+
+    /**
+     * Start Grouping Scripts
+     *
+     * @return GroupLink
+     */
+    function group()
+    {
+        return new GroupLink($this);
     }
 
     /**
