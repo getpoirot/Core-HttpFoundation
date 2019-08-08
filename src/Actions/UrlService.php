@@ -2,7 +2,9 @@
 namespace Module\HttpFoundation\Actions;
 
 use Module\HttpFoundation\Request\Plugin\ServerPathUrl;
+use Poirot\Http\Interfaces\iHttpRequest;
 use Poirot\Ioc\Container\Service\aServiceContainer;
+use Poirot\Router\Interfaces\iRouterStack;
 
 
 class UrlService 
@@ -26,13 +28,13 @@ class UrlService
             : false;
 
         $rAction = new Url(
-            $services->from('/')->get('Router')
+            $services->from('/')->get(iRouterStack::class)
             , $services->from('/')->get('HttpRequest-Psr')
             , $routeMatch ?:  null
         );
 
         $rAction->setServerUrlDefault(
-            ServerPathUrl::_($services->from('/')->get('HttpRequest'))
+            ServerPathUrl::_($services->from('/')->get(iHttpRequest::class))
                 ->getServerUrl()
         );
 
