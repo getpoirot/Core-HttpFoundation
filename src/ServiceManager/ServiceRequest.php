@@ -1,7 +1,7 @@
 <?php
 namespace Module\HttpFoundation\ServiceManager;
 
-use Module\HttpFoundation\ServiceManager\Request\BuildHttpRequestFromPhpServer;
+use Poirot\Http\HttpMessage\Request\BuildHttpRequestFromPhpServer;
 use Poirot\Http\HttpRequest;
 
 use Poirot\Http\Interfaces\Respec\iRequestAware;
