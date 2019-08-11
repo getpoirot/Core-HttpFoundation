@@ -35,7 +35,7 @@ return [
         ],
         'params' => [
             ListenerDispatch::ACTIONS => \Poirot\Ioc\newInitIns( new \Poirot\Ioc\instance(
-                '/module/httpfoundation/actions/FileServeAction'
+                \Module\HttpFoundation\Actions\FileServeAction::class
                 , [ 'baseDir' => PT_DIR_ROOT.'/www' ]
             ) ),
         ],

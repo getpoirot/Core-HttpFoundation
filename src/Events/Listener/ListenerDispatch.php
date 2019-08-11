@@ -2,7 +2,6 @@
 namespace Module\HttpFoundation\Events\Listener;
 
 use Poirot\Application\aSapi;
-use Poirot\Events\Listener\aListener;
 use Poirot\Ioc\Container;
 use Poirot\Ioc\instance;
 use Poirot\Router\Interfaces\iRoute;
@@ -66,7 +65,6 @@ use Poirot\Std\Type\StdTravers;
  * ],
  */
 class ListenerDispatch
-    extends aListener
 {
     const CONF   = 'route-actions';
     const WEIGHT = -100;
@@ -98,7 +96,7 @@ class ListenerDispatch
             return;
 
         if (! $route_match instanceof iRoute )
-            ## do nothing, unknown route match
+            // do nothing, unknown route match
             return null;
 
         

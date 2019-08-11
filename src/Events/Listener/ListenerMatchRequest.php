@@ -2,7 +2,6 @@
 namespace Module\HttpFoundation\Events\Listener;
 
 use Poirot\Application\aSapi;
-use Poirot\Events\Listener\aListener;
 use Poirot\Ioc\Container\Service\ServiceInstance;
 use Poirot\Psr7\HttpRequest;
 use Poirot\Router\Interfaces\iRouterStack;
@@ -11,7 +10,6 @@ use Psr\Http\Message\RequestInterface;
 
 
 class ListenerMatchRequest
-    extends aListener
 {
     const WEIGHT = -10;
     const RESULT_ROUTE_MATCH = 'route_match';

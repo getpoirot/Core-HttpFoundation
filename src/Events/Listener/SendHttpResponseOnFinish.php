@@ -4,7 +4,6 @@ namespace Module\HttpFoundation\Events\Listener;
 use Psr\Http\Message\StreamInterface;
 
 use Poirot\Application\aSapi;
-use Poirot\Events\Listener\aListener;
 use Poirot\Http\Header\FactoryHttpHeader;
 use Poirot\Http\HttpMessage\Request\Plugin\MethodType;
 use Poirot\Http\HttpMessage\Response\Plugin\Status;
@@ -16,7 +15,6 @@ use Poirot\View\Interfaces\iViewModel;
 
 
 class SendHttpResponseOnFinish
-    extends aListener
 {
     /** @var aSapi */
     protected $sapi;

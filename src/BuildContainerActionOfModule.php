@@ -1,7 +1,6 @@
 <?php
 namespace Module\HttpFoundation;
 
-use Module\HttpFoundation\Actions\FileServeAction;
 use Module\HttpFoundation\Actions\FlashMessage;
 use Module\HttpFoundation\Actions\HtmlHeadTitle;
 use Module\HttpFoundation\Actions\HtmlLink;
@@ -20,7 +19,5 @@ class BuildContainerActionOfModule
         'htmlHeadTitle'   => HtmlHeadTitle::class,
         'htmlScript'      => HtmlScript::class,
         'htmlLink'        => HtmlLink::class,
-
-        'fileServeAction' => FileServeAction::class,
     ];
 }
